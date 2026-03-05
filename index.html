@@ -26,8 +26,10 @@
         
         /* DASHBOARD STYLES */
         .hidden-field { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        .slide-down { animation: slideDown 0.3s ease-out forwards; transform-origin: top; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: scaleY(0.9); } to { opacity: 1; transform: scaleY(1); } }
         
         .glass-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
         
@@ -54,6 +56,10 @@
         .score-a { color: #15803d; background: #dcfce7; border: 1px solid #bbf7d0; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .score-b { color: #a16207; background: #fef9c3; border: 1px solid #fde047; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .score-c { color: #b91c1c; background: #fee2e2; border: 1px solid #fecaca; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+
+        /* Custom Progress Bar for Firm Debts */
+        .progress-bg { background-color: #f1f5f9; border-radius: 999px; height: 8px; width: 100%; overflow: hidden; margin-top: 4px; }
+        .progress-bar { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); height: 100%; border-radius: 999px; transition: width 0.5s ease; }
 
         /* Print Engine */
         @media print {
@@ -118,10 +124,6 @@
                         <span>GİRİŞ YAP</span> <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     </button>
                 </form>
-                
-                <div class="mt-6 text-center text-xs text-slate-400">
-                    &copy; 2026 LojiTrack Cloud Systems. Tüm hakları saklıdır.
-                </div>
             </div>
         </div>
     </div>
@@ -155,15 +157,13 @@
 
                     <div class="w-px h-6 bg-slate-700 mx-2 hidden md:block"></div>
 
-                    <div class="flex gap-1">
-                        <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 p-2 rounded text-xs transition text-white flex items-center gap-1" title="Tüm Veriyi CSV İndir"><i class="fa-solid fa-file-csv"></i></button>
-                        <button onclick="downloadExcelTemplate()" class="bg-emerald-700/50 hover:bg-emerald-700 p-2 rounded text-xs transition text-white" title="Şablon İndir (Güncel)"><i class="fa-solid fa-file-excel"></i></button>
-                        <button onclick="document.getElementById('excelInput').click()" class="bg-emerald-700 hover:bg-emerald-800 p-2 rounded text-xs transition text-white" title="Excel Yükle"><i class="fa-solid fa-file-import"></i></button>
-                        <button onclick="document.getElementById('backupInput').click()" class="bg-blue-700/50 hover:bg-blue-700 p-2 rounded text-xs transition" title="Yedek Yükle"><i class="fa-solid fa-upload"></i></button>
-                        <button onclick="downloadBackup()" class="bg-blue-700 hover:bg-blue-800 p-2 rounded text-xs transition" title="Yedek İndir"><i class="fa-solid fa-download"></i></button>
-                        <button onclick="window.print()" class="bg-slate-600 hover:bg-slate-500 p-2 rounded text-xs transition" title="Yazdır (PDF)"><i class="fa-solid fa-print"></i></button>
-                        <button onclick="openSettingsModal()" class="bg-slate-600 hover:bg-slate-500 p-2 rounded text-xs transition" title="Ayarlar"><i class="fa-solid fa-gear"></i></button>
-                        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 p-2 rounded text-xs transition text-white ml-2 shadow-lg" title="Çıkış Yap"><i class="fa-solid fa-power-off"></i> Çıkış</button>
+                    <div class="flex gap-1 items-center">
+                        <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1" title="Excel'e Aktar"><i class="fa-solid fa-file-csv"></i></button>
+                        <button onclick="document.getElementById('backupInput').click()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1" title="Sisteme Yedek Yükle"><i class="fa-solid fa-upload"></i> Yedek Yükle</button>
+                        <button onclick="downloadBackup()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1" title="Mevcut Veriyi İndir"><i class="fa-solid fa-download"></i> Yedek İndir</button>
+                        <button onclick="window.print()" class="bg-slate-600 hover:bg-slate-500 p-2 rounded text-xs transition text-white" title="Yazdır (PDF)"><i class="fa-solid fa-print"></i></button>
+                        <button onclick="openSettingsModal()" class="bg-slate-600 hover:bg-slate-500 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1" title="Sistem ve Firma Ayarları"><i class="fa-solid fa-gear"></i> Ayarlar</button>
+                        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-xs transition text-white ml-2 shadow-lg flex items-center gap-1" title="Çıkış Yap"><i class="fa-solid fa-power-off"></i> Çıkış</button>
                     </div>
                 </div>
             </div>
@@ -198,13 +198,10 @@
                     <div class="flex gap-2 w-full md:w-3/4 items-end">
                         <div class="w-32">
                             <label class="block text-xs font-bold text-blue-600 mb-1"><i class="fa-solid fa-calendar mr-1"></i>Dönem</label>
-                            <select id="periodSelect" onchange="changePeriod()" class="w-full border border-blue-300 bg-blue-50 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none font-bold text-blue-800">
-                                </select>
+                            <select id="periodSelect" onchange="changePeriod()" class="w-full border border-blue-300 bg-blue-50 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none font-bold text-blue-800"></select>
                         </div>
                         <button onclick="addNewPeriod()" class="bg-blue-100 text-blue-600 hover:bg-blue-200 p-2 rounded h-[42px] w-[42px] border border-blue-200" title="Yeni Dönem Ekle"><i class="fa-solid fa-plus"></i></button>
-                        
                         <div class="w-px h-8 bg-gray-300 mx-2"></div>
-
                         <div class="flex-1">
                             <label class="block text-xs font-bold text-gray-500 mb-1">📅 Başlangıç</label>
                             <input type="date" id="filterStartDate" onchange="refreshData()" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
@@ -221,14 +218,38 @@
             </div>
 
             <div id="mainView" class="fade-in">
-                <div id="formSection" class="glass-panel bg-white rounded-xl shadow-sm p-6 mb-8 no-print">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="summaryBadges">
+                    <div class="bg-white border-l-4 border-blue-500 p-4 rounded-xl shadow-sm flex items-center justify-between">
+                        <div><div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Filtrelenen Euro Toplamı</div><div class="text-2xl font-bold text-blue-700" id="totalEUR">0,00 €</div></div>
+                        <div class="bg-blue-50 text-blue-500 p-3 rounded-full text-xl"><i class="fa-solid fa-euro-sign"></i></div>
+                    </div>
+                    <div class="bg-white border-l-4 border-emerald-500 p-4 rounded-xl shadow-sm flex items-center justify-between">
+                        <div><div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Filtrelenen USD Toplamı</div><div class="text-2xl font-bold text-emerald-700" id="totalUSD">0,00 $</div></div>
+                        <div class="bg-emerald-50 text-emerald-500 p-3 rounded-full text-xl"><i class="fa-solid fa-dollar-sign"></i></div>
+                    </div>
+                    <div class="bg-slate-800 text-white p-4 rounded-xl shadow-md flex items-center justify-between">
+                        <div><div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Tahmini TL Karşılığı</div><div class="text-2xl font-bold text-white" id="totalTL">0,00 ₺</div></div>
+                        <div class="bg-slate-700 text-slate-300 p-3 rounded-full text-xl"><i class="fa-solid fa-turkish-lira-sign"></i></div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4 bg-slate-100 p-3 rounded-lg border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-list text-slate-400"></i> Kayıt Listesi</h3>
+                    <button onclick="toggleRecordForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm transition transform active:scale-95 flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-plus"></i> YENİ KAYIT EKLE
+                    </button>
+                </div>
+
+                <div id="formSection" class="hidden slide-down glass-panel bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-indigo-600">
                     <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-5">
-                        <h2 class="text-lg font-bold text-slate-800" id="formHeader"><i class="fa-solid fa-pen-to-square text-blue-600 mr-2"></i>Yeni Kayıt Oluştur</h2>
-                        <button id="cancelBtn" onclick="cancelEdit()" class="hidden text-sm text-red-600 hover:text-red-800 font-semibold transition flex items-center gap-1"><i class="fa-solid fa-xmark"></i> Vazgeç</button>
+                        <h2 class="text-lg font-bold text-slate-800" id="formHeader"><i class="fa-solid fa-pen-to-square text-indigo-600 mr-2"></i>Kayıt Formu</h2>
+                        <button id="cancelBtn" onclick="cancelEdit()" class="text-sm text-red-600 hover:text-red-800 font-semibold transition flex items-center gap-1"><i class="fa-solid fa-xmark"></i> Kapat/Vazgeç</button>
                     </div>
                     
                     <form id="logisticsForm" onsubmit="event.preventDefault(); saveRecord();">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            
                             <div class="col-span-1 md:col-span-4 bg-slate-50 p-2 rounded border border-slate-100 flex items-center gap-2 text-slate-700 font-semibold text-xs uppercase tracking-wide">
                                 <i class="fa-solid fa-calendar-days text-blue-500"></i> Fatura Bilgileri
                             </div>
@@ -240,8 +261,28 @@
                             <div class="col-span-1 md:col-span-4 bg-slate-50 p-2 rounded border border-slate-100 flex items-center gap-2 text-slate-700 font-semibold text-xs uppercase tracking-wide mt-2">
                                 <i class="fa-solid fa-building text-blue-500"></i> Taraflar, Destinasyon & Teslim Şekli
                             </div>
-                            <div class="relative"><label class="block text-xs font-bold text-gray-500 mb-1">İthalatçı <span class="text-[9px] text-green-500">(Oto-Doldur)</span></label><div class="flex"><select id="importerSelect" onchange="fillImporterDetails()" class="w-full border p-2 rounded-l bg-white"><option value="">Seçiniz...</option></select><button type="button" onclick="openModal('importer')" class="bg-emerald-500 text-white px-3 rounded-r"><i class="fa-solid fa-plus"></i></button></div></div>
-                            <div class="relative"><label class="block text-xs font-bold text-gray-500 mb-1">Nakliyeci</label><div class="flex"><select id="transporterSelect" class="w-full border p-2 rounded-l bg-white"><option value="">Seçiniz...</option></select><button type="button" onclick="openModal('transporter')" class="bg-emerald-500 text-white px-3 rounded-r"><i class="fa-solid fa-plus"></i></button></div></div>
+                            
+                            <div class="relative">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 flex justify-between">
+                                    <span>İthalatçı <span class="text-[9px] text-green-500">(Oto-Doldur)</span></span>
+                                    <button type="button" onclick="openSettingsModal(); toggleFirmManager();" class="text-blue-500 hover:text-blue-700 underline flex items-center gap-1"><i class="fa-solid fa-pen text-[10px]"></i>Yönet</button>
+                                </label>
+                                <div class="flex">
+                                    <select id="importerSelect" onchange="fillImporterDetails()" class="w-full border p-2 rounded-l bg-white"><option value="">Seçiniz...</option></select>
+                                    <button type="button" onclick="openModal('importer')" class="bg-emerald-500 text-white px-3 rounded-r" title="Yeni İthalatçı Ekle"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <label class="block text-xs font-bold text-gray-500 mb-1 flex justify-between">
+                                    <span>Nakliyeci</span>
+                                    <button type="button" onclick="openSettingsModal(); toggleFirmManager();" class="text-blue-500 hover:text-blue-700 underline flex items-center gap-1"><i class="fa-solid fa-pen text-[10px]"></i>Yönet</button>
+                                </label>
+                                <div class="flex">
+                                    <select id="transporterSelect" class="w-full border p-2 rounded-l bg-white"><option value="">Seçiniz...</option></select>
+                                    <button type="button" onclick="openModal('transporter')" class="bg-emerald-500 text-white px-3 rounded-r" title="Yeni Nakliyeci Ekle"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
                             
                             <div class="relative">
                                 <label class="block text-xs font-bold text-purple-700 mb-1">Teslim Şekli (Incoterms)</label>
@@ -264,7 +305,6 @@
                                     </optgroup>
                                 </select>
                             </div>
-                            
                             <div><label class="block text-xs font-bold text-blue-700 mb-1">Varış Ülkesi</label><input type="text" id="destCountry" class="w-full border border-blue-200 p-2 rounded bg-blue-50" placeholder="Örn: İngiltere"></div>
                             
                             <div class="col-span-1 md:col-span-4 bg-slate-50 p-2 rounded border border-slate-100 flex items-center gap-2 text-slate-700 font-semibold text-xs uppercase tracking-wide mt-2">
@@ -317,34 +357,27 @@
                             <div class="col-span-1 md:col-span-2"><label class="block text-xs font-bold text-gray-400 mb-1">Komisyon Karşılığı (TL)</label><input type="text" id="freightTL" readonly class="w-full bg-slate-100 border p-2 rounded text-slate-700 font-bold"></div>
                         </div>
                         <div class="mt-6 flex justify-end">
-                            <button type="submit" id="saveBtn" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-10 rounded-lg shadow-lg shadow-slate-500/30 transition transform active:scale-95 flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnText">KAYDET</span></button>
+                            <button type="submit" id="saveBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-lg shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnText">KAYDET</span></button>
                         </div>
                     </form>
                 </div>
 
-                <div class="glass-panel bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-slate-700 print-only">Kayıt Listesi</h3>
-                    </div>
-
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-slate-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left font-bold text-slate-600">Tarih</th>
-                                <th class="px-4 py-3 text-left font-bold text-slate-600">Firma & Destinasyon</th>
-                                <th class="px-4 py-3 text-left font-bold text-slate-600">Detaylar</th>
-                                <th class="px-4 py-3 text-right font-bold text-slate-600">Nakliye</th>
-                                <th class="px-4 py-3 text-right font-bold text-slate-600">Komisyon</th>
-                                <th class="px-4 py-3 text-center font-bold text-slate-600">Durum</th>
-                                <th class="px-4 py-3 text-center font-bold text-slate-600 no-print">İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recordsTableBody" class="divide-y divide-gray-200"></tbody>
-                    </table>
-                    <div class="mt-6 border-t pt-4 flex flex-col items-end gap-2 text-sm bg-slate-50 p-4 rounded-lg break-inside-avoid">
-                        <div class="flex justify-between w-80 border-b border-dashed border-slate-300 pb-1"><span class="font-bold text-slate-500">EURO TOPLAM:</span><span class="font-bold text-blue-700 text-lg" id="totalEUR">0,00 €</span></div>
-                        <div class="flex justify-between w-80 border-b border-dashed border-slate-300 pb-1"><span class="font-bold text-slate-500">USD TOPLAM:</span><span class="font-bold text-emerald-700 text-lg" id="totalUSD">0,00 $</span></div>
-                        <div class="flex justify-between w-80 pt-1"><span class="font-bold text-slate-700">TL KARŞILIĞI (Yaklaşık):</span><span class="font-bold text-slate-900 text-lg" id="totalTL">0,00 ₺</span></div>
+                <div class="glass-panel bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-bold text-slate-600">Tarih</th>
+                                    <th class="px-4 py-3 text-left font-bold text-slate-600">Firma & Destinasyon</th>
+                                    <th class="px-4 py-3 text-left font-bold text-slate-600">Detaylar</th>
+                                    <th class="px-4 py-3 text-right font-bold text-slate-600">Nakliye</th>
+                                    <th class="px-4 py-3 text-right font-bold text-slate-600">Komisyon</th>
+                                    <th class="px-4 py-3 text-center font-bold text-slate-600">Durum</th>
+                                    <th class="px-4 py-3 text-center font-bold text-slate-600 no-print">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsTableBody" class="divide-y divide-gray-200"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -366,7 +399,7 @@
                         <h3 class="font-bold text-red-800 uppercase tracking-wide"><i class="fa-solid fa-sack-dollar mr-2"></i>TOPLAM ALACAK RİSKİ (Geçmiş + Güncel)</h3>
                         <span class="text-xs text-red-400 font-mono">Tüm Dönemler</span>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-red-50 p-4 rounded-lg text-center border border-red-100">
                             <div class="text-[10px] text-red-400 font-bold mb-1 uppercase">Toplam EUR Alacak</div>
                             <div class="text-xl font-bold text-red-700" id="totalRiskEUR">0,00 €</div>
@@ -375,10 +408,15 @@
                             <div class="text-[10px] text-red-400 font-bold mb-1 uppercase">Toplam USD Alacak</div>
                             <div class="text-xl font-bold text-red-700" id="totalRiskUSD">0,00 $</div>
                         </div>
-                        <div class="col-span-2 md:col-span-1 bg-slate-800 text-white p-4 rounded-lg text-center shadow-lg border border-slate-700">
+                        <div class="bg-slate-800 text-white p-4 rounded-lg text-center shadow-lg border border-slate-700">
                             <div class="text-[10px] text-slate-300 font-bold mb-1 uppercase">KONSOLİDE RİSK (USD)</div>
                             <div class="text-2xl font-bold text-white" id="totalRiskConsolidated">0,00 $</div>
                             <div class="text-[9px] text-slate-400 mt-1 opacity-70">*Dönem Paritesi ile</div>
+                        </div>
+                        <div class="bg-slate-100 p-4 rounded-lg text-center shadow-sm border border-slate-300">
+                            <div class="text-[10px] text-slate-500 font-bold mb-1 uppercase">KONSOLİDE RİSK (TL)</div>
+                            <div class="text-xl font-bold text-slate-800" id="totalRiskTL">0,00 ₺</div>
+                            <div class="text-[9px] text-slate-400 mt-1 opacity-70">*Kayıt Kurları ile</div>
                         </div>
                     </div>
                 </div>
@@ -409,7 +447,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="glass-panel bg-white p-5 border-l-4 border-yellow-500"><div class="text-yellow-600 text-xs font-bold uppercase mb-1">Kesilecek Fatura (Bu Yıl)</div><div class="flex flex-col gap-1 mt-2" id="kpiUnbilled">-</div></div>
                     <div class="glass-panel bg-white p-5 border-l-4 border-red-500"><div class="text-red-500 text-xs font-bold uppercase mb-1">Bekleyen Tahsilat (Bu Yıl)</div><div class="flex flex-col gap-1 mt-2" id="kpiUnpaid">-</div></div>
-                    <div class="glass-panel bg-white p-5 border-l-4 border-indigo-600"><div class="text-indigo-600 text-xs font-bold uppercase mb-1">Toplam Ciro (Döviz Bazlı)</div><div class="flex flex-col gap-1 mt-2" id="kpiTotalCommission">-</div></div>
+                    <div class="glass-panel bg-white p-5 border-l-4 border-indigo-600"><div class="text-indigo-600 text-xs font-bold uppercase mb-1">Toplam Ciro (Bu Yıl)</div><div class="flex flex-col gap-1 mt-2" id="kpiTotalCommission">-</div></div>
                     <div class="glass-panel bg-white p-5 border-l-4 border-emerald-500"><div class="text-emerald-500 text-xs font-bold uppercase mb-1">Ortalama Kârlılık (Margin)</div><div class="text-3xl font-bold text-slate-700 mt-2" id="kpiAvgRate">-</div></div>
                 </div>
                 
@@ -454,43 +492,88 @@
                     <div id="aiInsightList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
                 </div>
 
-                <div class="glass-panel bg-white border-l-4 border-yellow-400 p-6 break-inside-avoid">
-                    <h3 class="font-bold text-yellow-700 mb-4">Acil Fatura Bekleyenler</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-xs text-center border-collapse">
-                            <thead class="bg-yellow-50 text-yellow-800">
-                                <tr>
-                                    <th class="px-4 py-2 text-left">Tarih</th>
-                                    <th class="px-4 py-2 text-left">Firma</th>
-                                    <th class="px-4 py-2 text-left">Nakliyeci</th>
-                                    <th class="px-4 py-2 text-right">Tutar</th>
-                                    <th class="px-4 py-2">Durum</th>
-                                </tr>
-                            </thead>
-                            <tbody id="unbilledTableBody"></tbody>
-                        </table>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 break-inside-avoid">
+                    <div class="lg:col-span-2 glass-panel bg-white p-4 relative">
+                        <h3 class="font-bold mb-4">Aylık Komisyon Trendi</h3>
+                        <div style="height:250px"><canvas id="monthlyChart"></canvas></div>
+                        <div id="trendAnalysisText" class="mt-4 p-3 bg-indigo-50 border-l-4 border-indigo-500 text-sm text-indigo-800 rounded"></div>
+                    </div>
+                    <div class="glass-panel bg-white p-4">
+                        <h3 class="font-bold mb-4">Sevkiyat Türü Dağılımı</h3>
+                        <div style="height:250px;display:flex;justify-content:center"><canvas id="typeChart"></canvas></div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass-panel bg-white p-6 break-inside-avoid"><h3 class="font-bold text-red-700 mb-4">Firmaya Göre Borç</h3><div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-red-50 text-red-900"><tr><th>Firma</th><th>Adet</th><th class="text-right">Borç (€)</th><th class="text-right">Borç ($)</th></tr></thead><tbody id="debtTableBody"></tbody><tfoot class="font-bold bg-red-100 text-red-900"><tr><td colspan="2">TOPLAM</td><td class="text-right" id="debtTotalEUR"></td><td class="text-right" id="debtTotalUSD"></td></tr></tfoot></table></div></div>
-                    <div class="glass-panel bg-white p-6 break-inside-avoid"><h3 class="font-bold text-slate-700 mb-4">Aylık Performans</h3><div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-slate-50"><tr><th>Dönem</th><th class="text-right">Nak(€)</th><th class="text-right">Kom(€)</th><th class="text-right">Nak($)</th><th class="text-right">Kom($)</th></tr></thead><tbody id="monthlyTableBody"></tbody><tfoot class="font-bold bg-slate-200"><tr><td>TOP</td><td class="text-right" id="mtTotalFreightEUR"></td><td class="text-right" id="mtTotalCommEUR"></td><td class="text-right" id="mtTotalFreightUSD"></td><td class="text-right" id="mtTotalCommUSD"></td></tr></tfoot></table></div></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-panel bg-white p-6 break-inside-avoid">
+                        <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">Firmaya Göre Borç Durumu</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Firma</th>
+                                        <th class="px-3 py-2 text-center">İşlem</th>
+                                        <th class="px-3 py-2 text-right">Borç Yükü</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="debtTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-panel bg-white p-6 break-inside-avoid">
+                        <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">Aylık Finansal Performans</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Dönem</th>
+                                        <th class="px-3 py-2 text-right">Nakliye (€)</th>
+                                        <th class="px-3 py-2 text-right text-indigo-600 font-bold">Kâr (€)</th>
+                                        <th class="px-3 py-2 text-right">Nakliye ($)</th>
+                                        <th class="px-3 py-2 text-right text-emerald-600 font-bold">Kâr ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthlyTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="glass-panel bg-white p-6 break-inside-avoid">
-                    <h3 class="font-bold text-slate-700 mb-4">Aylık KDV ve Net Gelir Analizi (Bu Yıl - %20 KDV Hariç)</h3>
-                    <div class="overflow-x-auto"><table class="min-w-full text-xs text-center border-collapse"><thead class="bg-slate-100"><tr><th class="border">Dönem</th><th colspan="3" class="border bg-blue-50">EURO (€)</th><th colspan="3" class="border bg-emerald-50">USD ($)</th></tr><tr><th class="border">Ay/Yıl</th><th class="border">Brüt</th><th class="border text-red-600">KDV</th><th class="border font-bold">Net</th><th class="border">Brüt</th><th class="border text-red-600">KDV</th><th class="border font-bold">Net</th></tr></thead><tbody id="vatTableBody"></tbody><tfoot class="font-bold bg-slate-200"><tr><td class="border">TOPLAM</td><td class="border" id="vatTotalGrossEUR"></td><td class="border text-red-700" id="vatTotalVatEUR"></td><td class="border text-blue-800" id="vatTotalNetEUR"></td><td class="border" id="vatTotalGrossUSD"></td><td class="border text-red-700" id="vatTotalVatUSD"></td><td class="border text-emerald-800" id="vatTotalNetUSD"></td></tr></tfoot></table></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
-                    <div class="glass-panel bg-white p-4 relative"><h3 class="font-bold mb-4">Aylık Komisyon Trendi</h3><div style="height:250px"><canvas id="monthlyChart"></canvas></div></div>
-                    <div class="glass-panel bg-white p-4"><h3 class="font-bold mb-4">Sevkiyat Türü Dağılımı</h3><div style="height:250px;display:flex;justify-content:center"><canvas id="typeChart"></canvas></div></div>
+                    <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">Net Gelir ve KDV Analizi (Bu Yıl - %20 KDV Hariç)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-xs border-collapse rounded-lg overflow-hidden">
+                            <thead class="bg-slate-100 text-slate-600 font-bold">
+                                <tr>
+                                    <th class="px-4 py-3 text-left border-b border-slate-200">Dönem</th>
+                                    <th class="px-4 py-3 text-right bg-blue-50/50 border-b border-blue-100 text-blue-800">EUR Brüt</th>
+                                    <th class="px-4 py-3 text-right bg-blue-50/50 border-b border-blue-100 text-red-500">EUR KDV</th>
+                                    <th class="px-4 py-3 text-right bg-blue-100/50 border-b border-blue-200 text-blue-900">EUR Net</th>
+                                    <th class="px-4 py-3 text-right bg-emerald-50/50 border-b border-emerald-100 text-emerald-800">USD Brüt</th>
+                                    <th class="px-4 py-3 text-right bg-emerald-50/50 border-b border-emerald-100 text-red-500">USD KDV</th>
+                                    <th class="px-4 py-3 text-right bg-emerald-100/50 border-b border-emerald-200 text-emerald-900">USD Net</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vatTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                            <tfoot class="bg-slate-50 font-bold text-slate-800 border-t-2 border-slate-200">
+                                <tr>
+                                    <td class="px-4 py-3 text-left">TOPLAM</td>
+                                    <td class="px-4 py-3 text-right text-blue-800" id="vatTotalGrossEUR"></td>
+                                    <td class="px-4 py-3 text-right text-red-600" id="vatTotalVatEUR"></td>
+                                    <td class="px-4 py-3 text-right text-blue-900 bg-blue-50" id="vatTotalNetEUR"></td>
+                                    <td class="px-4 py-3 text-right text-emerald-800" id="vatTotalGrossUSD"></td>
+                                    <td class="px-4 py-3 text-right text-red-600" id="vatTotalVatUSD"></td>
+                                    <td class="px-4 py-3 text-right text-emerald-900 bg-emerald-50" id="vatTotalNetUSD"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div id="greenView" class="hidden fade-in space-y-6">
                 <div class="green-gradient rounded-xl p-8 shadow-xl break-inside-avoid relative overflow-hidden">
-                    
                     <div class="flex items-center gap-4 mb-6 border-b border-emerald-400/30 pb-4 relative z-20">
                         <img id="greenReportLogo" src="" class="h-14 w-auto bg-white rounded p-1 shadow-sm hidden">
                         <div>
@@ -498,7 +581,6 @@
                             <div class="text-emerald-100 text-[10px] uppercase tracking-wider opacity-80">Çevresel Etki Raporu</div>
                         </div>
                     </div>
-
                     <div class="absolute right-0 top-0 opacity-10"><i class="fa-solid fa-tree text-9xl"></i></div>
                     <div class="relative z-10">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -510,7 +592,6 @@
                                 <i class="fa-solid fa-globe"></i> <span id="langBtnText">🇬🇧 English Report</span>
                             </button>
                         </div>
-                        
                         <div class="mt-6 flex flex-col md:flex-row gap-8">
                             <div><div class="text-xs font-bold text-emerald-200 uppercase" id="lblTotalCO2">Toplam Karbon Ayak İzi</div><div class="text-5xl font-bold tracking-tight" id="totalCO2Value">0.00</div><div class="text-sm font-bold text-emerald-200">Ton CO2e</div></div>
                             <div class="w-px bg-emerald-400 hidden md:block"></div>
@@ -518,121 +599,20 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass-panel bg-white p-6 relative overflow-hidden">
-                         <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-earth-europe text-8xl text-blue-700"></i></div>
-                         <h3 class="font-bold text-blue-800 mb-2" id="lblEmeaEmission">Avrupa (EMEA) Emisyonu</h3>
-                         <div class="text-3xl font-bold text-blue-900" id="emeaEmission">0.00 t</div>
-                         <div id="emeaAnalysis" class="text-xs text-slate-500 mt-2 p-2 bg-blue-50 rounded border-l-2 border-blue-400">Veri bekleniyor...</div>
-                    </div>
-                    <div class="glass-panel bg-white p-6 relative overflow-hidden">
-                         <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-earth-americas text-8xl text-orange-700"></i></div>
-                         <h3 class="font-bold text-orange-800 mb-2" id="lblAmerEmission">Amerika (AMER) Emisyonu</h3>
-                         <div class="text-3xl font-bold text-orange-900" id="amerEmission">0.00 t</div>
-                         <div id="amerAnalysis" class="text-xs text-slate-500 mt-2 p-2 bg-orange-50 rounded border-l-2 border-orange-400">Veri bekleniyor...</div>
-                    </div>
+                    <div class="glass-panel bg-white p-6 relative overflow-hidden"><div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-earth-europe text-8xl text-blue-700"></i></div><h3 class="font-bold text-blue-800 mb-2" id="lblEmeaEmission">Avrupa (EMEA) Emisyonu</h3><div class="text-3xl font-bold text-blue-900" id="emeaEmission">0.00 t</div><div id="emeaAnalysis" class="text-xs text-slate-500 mt-2 p-2 bg-blue-50 rounded border-l-2 border-blue-400">Veri bekleniyor...</div></div>
+                    <div class="glass-panel bg-white p-6 relative overflow-hidden"><div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-earth-americas text-8xl text-orange-700"></i></div><h3 class="font-bold text-orange-800 mb-2" id="lblAmerEmission">Amerika (AMER) Emisyonu</h3><div class="text-3xl font-bold text-orange-900" id="amerEmission">0.00 t</div><div id="amerAnalysis" class="text-xs text-slate-500 mt-2 p-2 bg-orange-50 rounded border-l-2 border-orange-400">Veri bekleniyor...</div></div>
                 </div>
-
-                <div class="glass-panel bg-white p-6 break-inside-avoid">
-                    <h3 class="font-bold text-slate-700 mb-4" id="lblMonthlyAnalysis"><i class="fa-solid fa-calendar-week text-emerald-600 mr-2"></i>Aylık Bölgesel Emisyon Analizi (Ton CO2e)</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-xs text-center border-collapse">
-                            <thead class="bg-emerald-50 text-emerald-800">
-                                <tr>
-                                    <th class="px-4 py-2 text-left" id="thMonth">Ay</th>
-                                    <th class="px-4 py-2">Avrupa (EMEA)</th>
-                                    <th class="px-4 py-2">Amerika (AMER)</th>
-                                    <th class="px-4 py-2 font-bold" id="thTotal">Toplam</th>
-                                </tr>
-                            </thead>
-                            <tbody id="monthlyEmissionBody" class="divide-y divide-emerald-50"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="glass-panel bg-white p-6 break-inside-avoid">
-                    <h3 class="font-bold text-slate-700 mb-4" id="lblModeBreakdown"><i class="fa-solid fa-truck-plane text-emerald-600 mr-2"></i>Mod Bazlı Emisyon Dağılımı Detayı</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-xs text-center border-collapse">
-                            <thead class="bg-slate-100 text-slate-700">
-                                <tr>
-                                    <th class="px-4 py-2 text-left" id="thMode">Mod</th>
-                                    <th class="px-4 py-2" id="thTripCount">Toplam Sefer</th>
-                                    <th class="px-4 py-2" id="thTotalDist">Toplam Mesafe (Km)</th>
-                                    <th class="px-4 py-2" id="thEmission">Emisyon (Ton CO2e)</th>
-                                    <th class="px-4 py-2" id="thShare">Pay (%)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modeEmissionBody" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-
+                <div class="glass-panel bg-white p-6 break-inside-avoid"><h3 class="font-bold text-slate-700 mb-4" id="lblMonthlyAnalysis"><i class="fa-solid fa-calendar-week text-emerald-600 mr-2"></i>Aylık Bölgesel Emisyon Analizi (Ton CO2e)</h3><div class="overflow-x-auto"><table class="min-w-full text-xs text-center border-collapse"><thead class="bg-emerald-50 text-emerald-800"><tr><th class="px-4 py-2 text-left" id="thMonth">Ay</th><th class="px-4 py-2">Avrupa (EMEA)</th><th class="px-4 py-2">Amerika (AMER)</th><th class="px-4 py-2 font-bold" id="thTotal">Toplam</th></tr></thead><tbody id="monthlyEmissionBody" class="divide-y divide-emerald-50"></tbody></table></div></div>
+                <div class="glass-panel bg-white p-6 break-inside-avoid"><h3 class="font-bold text-slate-700 mb-4" id="lblModeBreakdown"><i class="fa-solid fa-truck-plane text-emerald-600 mr-2"></i>Mod Bazlı Emisyon Dağılımı Detayı</h3><div class="overflow-x-auto"><table class="min-w-full text-xs text-center border-collapse"><thead class="bg-slate-100 text-slate-700"><tr><th class="px-4 py-2 text-left" id="thMode">Mod</th><th class="px-4 py-2" id="thTripCount">Toplam Sefer</th><th class="px-4 py-2" id="thTotalDist">Toplam Mesafe (Km)</th><th class="px-4 py-2" id="thEmission">Emisyon (Ton CO2e)</th><th class="px-4 py-2" id="thShare">Pay (%)</th></tr></thead><tbody id="modeEmissionBody" class="divide-y divide-slate-100"></tbody></table></div></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="glass-panel bg-white p-6"><h3 class="font-bold text-slate-700 mb-4" id="lblGraph"><i class="fa-solid fa-chart-pie text-emerald-500 mr-2"></i>Grafiksel Dağılım</h3><div style="height:250px; display:flex; justify-content:center"><canvas id="co2ModeChart"></canvas></div></div>
                     <div class="glass-panel bg-white p-6"><h3 class="font-bold text-slate-700 mb-4" id="lblIntensity"><i class="fa-solid fa-gauge-high text-emerald-500 mr-2"></i>Karbon Yoğunluğu (Verimlilik)</h3><div class="flex flex-col items-center justify-center h-full pb-6"><div class="text-4xl font-bold text-slate-700 mb-2" id="carbonIntensity">0</div><div class="text-sm text-slate-500">gCO2 / Ton-Km</div><div class="mt-4 text-xs text-center text-slate-400 max-w-xs" id="lblIntensityNote">*Düşük değer, daha verimli ve çevreci operasyonları işaret eder.</div></div></div>
                     <div class="glass-panel bg-white p-6"><h3 class="font-bold text-slate-700 mb-4" id="lblAiAdvisor"><i class="fa-solid fa-robot text-emerald-500 mr-2"></i>AI Çevresel Danışman & Benchmark</h3><div id="greenAiInsights" class="space-y-3 text-sm text-slate-600 max-h-[250px] overflow-y-auto"></div></div>
                 </div>
-                
-                <div class="glass-panel bg-white p-6">
-                    <h3 class="font-bold text-slate-700 mb-4" id="lblScorecard"><i class="fa-solid fa-certificate text-emerald-600 mr-2"></i>Nakliyeci Karbon Karnesi (Scorecard)</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-xs">
-                            <thead class="bg-slate-100 text-slate-700">
-                                <tr>
-                                    <th class="px-4 py-2 text-left" id="thTransporter">Nakliyeci</th>
-                                    <th class="px-4 py-2 text-center" id="thMode2">Mod</th>
-                                    <th class="px-4 py-2 text-right" id="thWork">Taşıma İş (Ton-Km)</th>
-                                    <th class="px-4 py-2 text-right" id="thTotalEmission">Toplam Emisyon</th>
-                                    <th class="px-4 py-2 text-center" id="thIntensity">Yoğunluk (gCO2/tkm)</th>
-                                    <th class="px-4 py-2 text-center" id="thScore">Puan</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transporterScoreBody" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="glass-panel bg-white p-6">
-                    <h3 class="font-bold text-slate-700 mb-4" id="lblDetailedBreakdown">Detaylı Emisyon Dökümü (Kapsam 3 & Teslim Şekli)</h3>
-                    <p class="text-[10px] text-gray-500 mb-2" id="lblDetailNote">*Teslim şekli EXW, FCA, FOB gibi alıcı sorumluluğundaki yükler hesaplamaya dahil edilmez.</p>
-                    <div class="overflow-x-auto mb-6">
-                        <table class="min-w-full text-xs" id="greenDetailTable">
-                            <thead class="bg-emerald-50 text-emerald-900">
-                                <tr>
-                                    <th class="px-4 py-2 text-left" id="thDate">Tarih</th>
-                                    <th class="px-4 py-2 text-left" id="thImporter">İthalatçı</th>
-                                    <th class="px-4 py-2 text-left" id="thDest">Destinasyon</th>
-                                    <th class="px-4 py-2 text-left text-purple-700 font-bold" id="thIncoterm">Teslim Şekli</th>
-                                    <th class="px-4 py-2 text-left" id="thMode3">Mod</th>
-                                    <th class="px-4 py-2 text-right" id="thDistDetail">Mesafe Detayı</th>
-                                    <th class="px-4 py-2 text-right" id="thWeight">Ağırlık (Kg)</th>
-                                    <th class="px-4 py-2 text-right" id="thEmissionVal">Emisyon (kgCO2e)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="greenTableBody" class="divide-y divide-emerald-50"></tbody>
-                            <tfoot id="greenTotalFooter" class="bg-emerald-100 text-emerald-900 font-bold"></tfoot>
-                        </table>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="border rounded p-3">
-                            <h4 class="text-xs font-bold text-blue-800 bg-blue-50 p-2 rounded mb-2" id="lblEmeaList">🇪🇺 Avrupa (EMEA) Dökümü (Firma Bazlı Toplam)</h4>
-                            <div class="overflow-y-auto"><table class="min-w-full text-xs"><tbody id="emeaTableBody" class="divide-y divide-blue-50"></tbody><tfoot id="emeaTotalFooter" class="bg-blue-100 text-blue-900 font-bold"></tfoot></table></div>
-                        </div>
-                        <div class="border rounded p-3">
-                            <h4 class="text-xs font-bold text-orange-800 bg-orange-50 p-2 rounded mb-2" id="lblAmerList">🇺🇸 Amerika (AMER) Dökümü (Firma Bazlı Toplam)</h4>
-                            <div class="overflow-y-auto"><table class="min-w-full text-xs"><tbody id="amerTableBody" class="divide-y divide-orange-50"></tbody><tfoot id="amerTotalFooter" class="bg-orange-100 text-orange-900 font-bold"></tfoot></table></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 p-4 border-t border-gray-200 text-[10px] text-gray-500 italic">
-                    <p id="disclaimer1">✔️ Hesaplamalar WTW (Well-to-Wheel / Kaynaktan Tekere) prensibine dayalı ortalama değerlerdir.📜LojiTrack üzerinden sunduğumuz karbon emisyon raporları, lojistik sektörü için küresel geçerliliği olan GLEC Framework (Global Logistics Emissions Council) metodolojisi baz alınarak hazırlanmıştır.Hesaplamalarımız ISO 14083 standardı ile uyumlu olup, Kapsam 3 (Scope 3) emisyonlarını içerir. Kullanılan emisyon faktörleri, WTW (Well-to-Wheel / Kaynaktan Tekere) prensibine dayanır; yani sadece yakıtın yanması değil, üretimi ve dağıtımı sırasındaki emisyonlar da hesaba katılmıştır.</p>
-                    <p id="disclaimer2">✔️ Bu veriler GLEC (Global Logistics Emissions Council) çerçevesindeki ortalama (default) faktörlerdir.</p>
-                    <p id="disclaimer3">✔️ Hesaplamalar, GLEC Çerçevesi ile uyumlu ortalama emisyon faktörlerine dayanmaktadır. Alıcının sorumluluğunda olan Incoterms (EXW, FCA, vb.) kapsamındaki gönderiler hariç tutulmuştur.</p>
-                </div>
+                <div class="glass-panel bg-white p-6"><h3 class="font-bold text-slate-700 mb-4" id="lblScorecard"><i class="fa-solid fa-certificate text-emerald-600 mr-2"></i>Nakliyeci Karbon Karnesi (Scorecard)</h3><div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-slate-100 text-slate-700"><tr><th class="px-4 py-2 text-left" id="thTransporter">Nakliyeci</th><th class="px-4 py-2 text-center" id="thMode2">Mod</th><th class="px-4 py-2 text-right" id="thWork">Taşıma İş (Ton-Km)</th><th class="px-4 py-2 text-right" id="thTotalEmission">Toplam Emisyon</th><th class="px-4 py-2 text-center" id="thIntensity">Yoğunluk (gCO2/tkm)</th><th class="px-4 py-2 text-center" id="thScore">Puan</th></tr></thead><tbody id="transporterScoreBody" class="divide-y divide-slate-100"></tbody></table></div></div>
+                <div class="glass-panel bg-white p-6"><h3 class="font-bold text-slate-700 mb-4" id="lblDetailedBreakdown">Detaylı Emisyon Dökümü (Kapsam 3 & Teslim Şekli)</h3><p class="text-[10px] text-gray-500 mb-2" id="lblDetailNote">*Teslim şekli EXW, FCA, FOB gibi alıcı sorumluluğundaki yükler hesaplamaya dahil edilmez.</p><div class="overflow-x-auto mb-6"><table class="min-w-full text-xs" id="greenDetailTable"><thead class="bg-emerald-50 text-emerald-900"><tr><th class="px-4 py-2 text-left" id="thDate">Tarih</th><th class="px-4 py-2 text-left" id="thImporter">İthalatçı</th><th class="px-4 py-2 text-left" id="thDest">Destinasyon</th><th class="px-4 py-2 text-left text-purple-700 font-bold" id="thIncoterm">Teslim Şekli</th><th class="px-4 py-2 text-left" id="thMode3">Mod</th><th class="px-4 py-2 text-right" id="thDistDetail">Mesafe Detayı</th><th class="px-4 py-2 text-right" id="thWeight">Ağırlık (Kg)</th><th class="px-4 py-2 text-right" id="thEmissionVal">Emisyon (kgCO2e)</th></tr></thead><tbody id="greenTableBody" class="divide-y divide-emerald-50"></tbody><tfoot id="greenTotalFooter" class="bg-emerald-100 text-emerald-900 font-bold"></tfoot></table></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="border rounded p-3"><h4 class="text-xs font-bold text-blue-800 bg-blue-50 p-2 rounded mb-2" id="lblEmeaList">🇪🇺 Avrupa (EMEA) Dökümü (Firma Bazlı Toplam)</h4><div class="overflow-y-auto"><table class="min-w-full text-xs"><tbody id="emeaTableBody" class="divide-y divide-blue-50"></tbody><tfoot id="emeaTotalFooter" class="bg-blue-100 text-blue-900 font-bold"></tfoot></table></div></div><div class="border rounded p-3"><h4 class="text-xs font-bold text-orange-800 bg-orange-50 p-2 rounded mb-2" id="lblAmerList">🇺🇸 Amerika (AMER) Dökümü (Firma Bazlı Toplam)</h4><div class="overflow-y-auto"><table class="min-w-full text-xs"><tbody id="amerTableBody" class="divide-y divide-orange-50"></tbody><tfoot id="amerTotalFooter" class="bg-orange-100 text-orange-900 font-bold"></tfoot></table></div></div></div></div>
+                <div class="mt-8 p-4 border-t border-gray-200 text-[10px] text-gray-500 italic"><p id="disclaimer1">✔️ Hesaplamalar WTW (Well-to-Wheel / Kaynaktan Tekere) prensibine dayalı ortalama değerlerdir.📜LojiTrack üzerinden sunduğumuz karbon emisyon raporları, lojistik sektörü için küresel geçerliliği olan GLEC Framework metodolojisi baz alınarak hazırlanmıştır. Kapsam 3 (Scope 3) emisyonlarını içerir.</p><p id="disclaimer2">✔️ Bu veriler GLEC çerçevesindeki ortalama (default) faktörlerdir.</p><p id="disclaimer3">✔️ Hesaplamalar ortalama emisyon faktörlerine dayanmaktadır. Alıcının sorumluluğunda olan Incoterms kapsamındaki gönderiler hariç tutulmuştur.</p></div>
             </div>
             
         </div>
@@ -640,10 +620,8 @@
         <div id="firmModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-[60] backdrop-blur-sm">
             <div class="bg-white p-6 rounded-xl shadow-2xl w-[500px]">
                 <h3 class="text-lg font-bold mb-4 text-slate-800" id="modalTitle">Firma Ekle</h3>
-                
                 <div class="space-y-3">
                     <input type="text" id="newFirmName" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Firma Ünvanı">
-                    
                     <div id="importerExtraFields" class="hidden space-y-3 p-3 bg-slate-50 rounded border border-slate-200">
                         <div class="text-xs font-bold text-slate-500 uppercase">Otomatik Doldurma Bilgileri</div>
                         <div class="grid grid-cols-2 gap-2">
@@ -658,7 +636,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="flex justify-end gap-2 mt-4">
                     <button onclick="closeModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-lg">İptal</button>
                     <button onclick="saveFirm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg">Kaydet</button>
@@ -667,23 +644,27 @@
         </div>
         
         <div id="settingsModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 backdrop-blur-sm">
-            <div class="bg-white p-6 rounded-xl shadow-2xl w-96">
-                <h3 class="text-lg font-bold mb-4 text-slate-800"><i class="fa-solid fa-gear mr-2 text-slate-500"></i> Firma Ayarları</h3>
+            <div class="bg-white p-6 rounded-xl shadow-2xl w-96 max-h-[90vh] overflow-y-auto">
+                <h3 class="text-lg font-bold mb-4 text-slate-800"><i class="fa-solid fa-gear mr-2 text-slate-500"></i> Sistem Ayarları</h3>
                 <div class="mb-4"><label class="block text-sm font-bold text-gray-600 mb-2">Firma Ünvanı</label><input type="text" id="settingsCompanyTitle" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"></div>
                 <div class="mb-6"><label class="block text-sm font-bold text-gray-600 mb-2">Firma Logosu</label><input type="file" id="settingsLogoInput" accept="image/*" class="w-full text-sm text-gray-500"></div>
                 <hr class="my-4 border-gray-200">
-                <div class="mb-4"><h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Liste Yönetimi</h4><button onclick="toggleFirmManager()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 p-2 rounded text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-list-check"></i> Firmaları Düzenle</button></div>
+                <div class="mb-4"><h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Firma / Nakliyeci Yönetimi</h4><button onclick="toggleFirmManager()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 p-2 rounded text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-list-check"></i> Firmaları Düzenle/Sil</button></div>
+                
                 <div id="firmManagerSection" class="hidden mb-4 bg-slate-50 p-3 rounded border border-slate-200">
-                    <div class="mb-4"><h5 class="text-xs font-bold text-blue-600 mb-1">İthalatçılar</h5><div id="importerList" class="max-h-32 overflow-y-auto text-xs border bg-white rounded"></div></div>
-                    <div><h5 class="text-xs font-bold text-orange-600 mb-1">Nakliyeciler</h5><div id="transporterList" class="max-h-32 overflow-y-auto text-xs border bg-white rounded"></div></div>
+                    <div class="mb-4"><h5 class="text-xs font-bold text-blue-600 mb-1">İthalatçılar</h5><div id="importerList" class="max-h-40 overflow-y-auto text-xs border bg-white rounded"></div></div>
+                    <div><h5 class="text-xs font-bold text-orange-600 mb-1">Nakliyeciler</h5><div id="transporterList" class="max-h-40 overflow-y-auto text-xs border bg-white rounded"></div></div>
                 </div>
+                
                 <hr class="my-4 border-gray-200">
                 <div class="mb-4"><h4 class="text-xs font-bold text-red-500 uppercase mb-2">Tehlikeli Bölge</h4><button onclick="resetAllData()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2 rounded text-sm font-bold transition flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can"></i> Tüm Verileri Sıfırla</button></div>
                 <div class="flex justify-end gap-2 mt-4"><button onclick="closeSettingsModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-lg">Kapat</button><button onclick="saveSettings()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg">Kaydet</button></div>
             </div>
         </div>
-    </div> <script>
-        // --- 1. FIREBASE BAŞLATMA VE ORTAK YAPI ---
+    </div> 
+
+    <script>
+        // --- 1. FİREBASE BAŞLATMA ---
         const firebaseConfig = {
             apiKey: "AIzaSyArPMb-jmR-BLrwBoMySG7Uz0ys0b-UQaQ",
             authDomain: "logitrack-carbon.firebaseapp.com",
@@ -692,136 +673,66 @@
             messagingSenderId: "300326408384",
             appId: "1:300326408384:web:1b8dcf7e3da9980fbc1d25"
         };
-
-        // Firebase'i başlat (Compat Sürümü tek noktadan)
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
         let currentUserUid = null;
 
-        // --- 2. GİRİŞ & ÇIKIŞ (SPA YÖNLENDİRMESİ) ---
+        // --- 2. GİRİŞ KONTROLÜ ---
         auth.onAuthStateChanged((user) => {
             if (!user) {
-                // Kullanıcı yoksa Login Ekranını göster, Paneli gizle
                 currentUserUid = null;
                 document.getElementById('mainDashboard').style.display = 'none';
                 document.getElementById('loginScreen').style.display = 'flex';
             } else {
-                // Giriş başarılıysa Login Ekranını gizle, Paneli göster
                 currentUserUid = user.uid; 
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainDashboard').style.display = 'block';
-                loadDataFromCloud(); // Panelin verilerini çek
+                loadDataFromCloud(); 
             }
         });
 
-        // Login Formunu Dinle
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            
             const btn = document.getElementById('loginBtn');
             const originalBtnText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol ediliyor...';
             btn.disabled = true;
             document.getElementById('errorMessage').classList.add('hidden');
-
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    // onAuthStateChanged tetiklenecek ve ekranı değiştirecek
-                    btn.innerHTML = originalBtnText;
-                    btn.disabled = false;
-                })
-                .catch((error) => {
-                    btn.innerHTML = originalBtnText;
-                    btn.disabled = false;
-                    document.getElementById('errorMessage').classList.remove('hidden');
-                    
-                    if(error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
-                        document.getElementById('errorText').innerText = "E-posta veya şifre hatalı!";
-                    } else {
-                        document.getElementById('errorText').innerText = "Bir hata oluştu: " + error.message;
-                    }
-                });
+            
+            auth.signInWithEmailAndPassword(email, password).then(() => { 
+                btn.innerHTML = originalBtnText; 
+                btn.disabled = false; 
+            }).catch((error) => { 
+                btn.innerHTML = originalBtnText; 
+                btn.disabled = false; 
+                document.getElementById('errorMessage').classList.remove('hidden'); 
+                if(error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') { 
+                    document.getElementById('errorText').innerText = "E-posta veya şifre hatalı!"; 
+                } else { 
+                    document.getElementById('errorText').innerText = "Bir hata oluştu: " + error.message; 
+                } 
+            });
         });
+        
+        function logout() { auth.signOut(); }
 
-        function logout() {
-            auth.signOut(); // onAuthStateChanged tetiklenip ekranı tekrar Login'e çevirecek.
-        }
-
-        // --- 3. ANA PANEL DEĞİŞKENLERİ VE FONKSİYONLARI ---
+        // --- 3. DEĞİŞKENLER VE YARDIMCI FONKSİYONLAR ---
         let records = [];
-        let rawImporters = [];
-        let importers = [];
-        let transporters = [];
+        let rawImporters = []; let importers = []; let transporters = [];
         let appSettings = { title: 'LojiTrack', logo: '' };
         let periods = ['2025', '2026'];
         let activePeriod = localStorage.getItem('activePeriod') || new Date().getFullYear().toString();
-        
-        // Buluttan Veri Çekme
-        function loadDataFromCloud() {
-            if (!currentUserUid) return;
-            
-            db.collection("workspaces").doc(currentUserUid).get().then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    records = data.logisticsRecords || [];
-                    rawImporters = data.importers || [];
-                    importers = rawImporters.map(i => (typeof i === 'string') ? { name: i, country:'', city:'', distSea:0, distRoad:0, distAir:0 } : i);
-                    transporters = data.transporters || [];
-                    periods = data.periods || ['2025', '2026'];
-                    
-                    if(data.appSettings) {
-                        appSettings = data.appSettings;
-                        applySettings();
-                    }
-                }
-                initPeriods();
-                refreshData(); 
-                updateDropdowns();
-                toggleFields();
-                document.getElementById('commInvDate').valueAsDate = new Date();
-                document.getElementById('printDate').innerText = new Date().toLocaleDateString('tr-TR');
-            }).catch((error) => {
-                console.error("Veri çekme hatası:", error);
-                alert("Veriler buluttan alınırken bir hata oluştu.");
-            });
-        }
-
-        // Buluta Veri Yazma
-        function syncToCloud() {
-            if (!currentUserUid) return;
-            
-            const workspaceData = {
-                logisticsRecords: records,
-                importers: rawImporters.length > 0 ? rawImporters : importers, 
-                transporters: transporters,
-                periods: periods,
-                appSettings: appSettings
-            };
-
-            db.collection("workspaces").doc(currentUserUid).set(workspaceData, { merge: true })
-            .then(() => {
-                console.log("Buluta başarıyla senkronize edildi!");
-            })
-            .catch((error) => {
-                console.error("Buluta yazma hatası: ", error);
-            });
-        }
-
-        let editingRecordId = null;
-        let activeModalType = '';
-	    let editingFirmOriginalName = null; 
+        let editingRecordId = null; let activeModalType = ''; let editingFirmOriginalName = null; 
         let chartInstance1 = null; let chartInstance2 = null; let chartInstanceCO2 = null;
         let currentGreenLang = 'tr'; 
-
+        
         const YEARLY_PARITIES = { '2023': 1.08, '2024': 1.08, '2025': 1.05, '2026': 1.05, '2027': 1.10 };
         const DEFAULT_PARITY = 1.08;
-        
         function getActiveParity() { return YEARLY_PARITIES[activePeriod] || DEFAULT_PARITY; }
-
+        
         const EMISSION_FACTORS = { 'Deniz': 0.015, 'Kara': 0.090, 'Hava': 0.600 };
         const BUYER_RESPONSIBLE_INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB'];
 
@@ -832,116 +743,110 @@
             return 'USD';
         }
 
-        // --- DİĞER TÜM PANEL FONKSİYONLARI (Kısaltılmamış Haliyle) ---
-
-        function toggleGreenLanguage() {
-            currentGreenLang = currentGreenLang === 'tr' ? 'en' : 'tr';
-            const isEn = currentGreenLang === 'en';
-            
-            document.getElementById('langBtnText').innerText = isEn ? '🇹🇷 Türkçe Rapor' : '🇬🇧 English Report';
-            
-            document.getElementById('greenTitle').innerText = isEn ? 'Green Logistics & Sustainability Report' : 'Yeşil Lojistik & Sürdürülebilirlik Raporu';
-            document.getElementById('greenSubtitle').innerText = isEn ? 'Carbon Emission Analysis (Scope 3) compliant with ISO 14083 & GLEC Framework' : 'ISO 14083 & GLEC Çerçevesi Uyumlu Karbon Emisyon Analizi (Kapsam 3)';
-            
-            document.getElementById('lblTotalCO2').innerText = isEn ? 'TOTAL CARBON FOOTPRINT' : 'TOPLAM KARBON AYAK İZİ';
-            document.getElementById('lblTrees').innerText = isEn ? 'TREES TO OFFSET' : 'TELAFI İÇİN GEREKEN';
-            document.getElementById('lblTreeUnit').innerText = isEn ? 'Mature Trees 🌳' : 'Yetişkin Ağaç 🌳';
-            
-            document.getElementById('lblEmeaEmission').innerText = isEn ? 'Europe (EMEA) Emissions' : 'Avrupa (EMEA) Emisyonu';
-            document.getElementById('lblAmerEmission').innerText = isEn ? 'Americas (AMER) Emissions' : 'Amerika (AMER) Emisyonu';
-            
-            document.getElementById('lblMonthlyAnalysis').innerHTML = isEn ? '<i class="fa-solid fa-calendar-week text-emerald-600 mr-2"></i>Monthly Regional Emission Analysis (Ton CO2e)' : '<i class="fa-solid fa-calendar-week text-emerald-600 mr-2"></i>Aylık Bölgesel Emisyon Analizi (Ton CO2e)';
-            document.getElementById('thMonth').innerText = isEn ? 'Month' : 'Ay';
-            document.getElementById('thTotal').innerText = isEn ? 'Total' : 'Toplam';
-            
-            document.getElementById('lblModeBreakdown').innerHTML = isEn ? '<i class="fa-solid fa-truck-plane text-emerald-600 mr-2"></i>Emission Breakdown by Mode' : '<i class="fa-solid fa-truck-plane text-emerald-600 mr-2"></i>Mod Bazlı Emisyon Dağılımı Detayı';
-            document.getElementById('thMode').innerText = isEn ? 'Mode' : 'Mod';
-            document.getElementById('thTripCount').innerText = isEn ? 'Trip Count' : 'Toplam Sefer';
-            document.getElementById('thTotalDist').innerText = isEn ? 'Total Distance (Km)' : 'Toplam Mesafe (Km)';
-            document.getElementById('thEmission').innerText = isEn ? 'Emission (Ton CO2e)' : 'Emisyon (Ton CO2e)';
-            document.getElementById('thShare').innerText = isEn ? 'Share (%)' : 'Pay (%)';
-            
-            document.getElementById('lblGraph').innerHTML = isEn ? '<i class="fa-solid fa-chart-pie text-emerald-500 mr-2"></i>Graphical Distribution' : '<i class="fa-solid fa-chart-pie text-emerald-500 mr-2"></i>Grafiksel Dağılım';
-            document.getElementById('lblIntensity').innerHTML = isEn ? '<i class="fa-solid fa-gauge-high text-emerald-500 mr-2"></i>Carbon Intensity (Efficiency)' : '<i class="fa-solid fa-gauge-high text-emerald-500 mr-2"></i>Karbon Yoğunluğu (Verimlilik)';
-            document.getElementById('lblIntensityNote').innerText = isEn ? '*Lower value indicates more efficient and eco-friendly operations.' : '*Düşük değer, daha verimli ve çevreci operasyonları işaret eder.';
-            document.getElementById('lblAiAdvisor').innerHTML = isEn ? '<i class="fa-solid fa-robot text-emerald-500 mr-2"></i>AI Environmental Advisor & Benchmark' : '<i class="fa-solid fa-robot text-emerald-500 mr-2"></i>AI Çevresel Danışman & Benchmark';
-            
-            document.getElementById('lblScorecard').innerHTML = isEn ? '<i class="fa-solid fa-certificate text-emerald-600 mr-2"></i>Carrier Carbon Scorecard' : '<i class="fa-solid fa-certificate text-emerald-600 mr-2"></i>Nakliyeci Karbon Karnesi (Scorecard)';
-            document.getElementById('thTransporter').innerText = isEn ? 'Carrier' : 'Nakliyeci';
-            document.getElementById('thMode2').innerText = isEn ? 'Mode' : 'Mod';
-            document.getElementById('thWork').innerText = isEn ? 'Transport Work (Ton-Km)' : 'Taşıma İş (Ton-Km)';
-            document.getElementById('thTotalEmission').innerText = isEn ? 'Total Emission' : 'Toplam Emisyon';
-            document.getElementById('thIntensity').innerText = isEn ? 'Intensity (gCO2/tkm)' : 'Yoğunluk (gCO2/tkm)';
-            document.getElementById('thScore').innerText = isEn ? 'Score' : 'Puan';
-            
-            document.getElementById('lblDetailedBreakdown').innerText = isEn ? 'Detailed Emission Breakdown (Scope 3 & Incoterms)' : 'Detaylı Emisyon Dökümü (Kapsam 3 & Teslim Şekli)';
-            document.getElementById('lblDetailNote').innerText = isEn ? '*Shipments under buyer-responsible Incoterms (EXW, FCA, FOB etc.) are excluded from calculations.' : '*Teslim şekli EXW, FCA, FOB gibi alıcı sorumluluğundaki yükler hesaplamaya dahil edilmez.';
-            
-            document.getElementById('thDate').innerText = isEn ? 'Date' : 'Tarih';
-            document.getElementById('thImporter').innerText = isEn ? 'Importer' : 'İthalatçı';
-            document.getElementById('thDest').innerText = isEn ? 'Destination' : 'Destinasyon';
-            document.getElementById('thIncoterm').innerText = isEn ? 'Incoterm' : 'Teslim Şekli';
-            document.getElementById('thMode3').innerText = isEn ? 'Mode' : 'Mod';
-            document.getElementById('thDistDetail').innerText = isEn ? 'Distance Detail' : 'Mesafe Detayı';
-            document.getElementById('thWeight').innerText = isEn ? 'Weight (Kg)' : 'Ağırlık (Kg)';
-            document.getElementById('thEmissionVal').innerText = isEn ? 'Emission (kgCO2e)' : 'Emisyon (kgCO2e)';
-            
-            document.getElementById('lblEmeaList').innerText = isEn ? '🇪🇺 Europe (EMEA) Breakdown (Aggregated by Company)' : '🇪🇺 Avrupa (EMEA) Dökümü (Firma Bazlı Toplam)';
-            document.getElementById('lblAmerList').innerText = isEn ? '🇺🇸 Americas (AMER) Breakdown (Aggregated by Company)' : '🇺🇸 Amerika (AMER) Dökümü (Firma Bazlı Toplam)';
-            
-            document.getElementById('disclaimer1').innerText = isEn ? '✔️ Calculations are based on WTW (Well-to-Wheel) average values.Our carbon emission reports generated via LojiTrack are based on the GLEC Framework (Global Logistics Emissions Council) methodology, the global standard for logistics emissions.The calculations are aligned with ISO 14083 and cover Scope 3 emissions. We utilize WTW (Well-to-Wheel) emission factors, meaning we account for emissions from both fuel combustion and fuel production/distribution processes.' : '* Hesaplamalar WTW (Well-to-Wheel / Kaynaktan Tekere) prensibine dayalı ortalama değerlerdir.';
-            document.getElementById('disclaimer2').innerText = isEn ? '✔️ These data are average (default) factors within the GLEC (Global Logistics Emissions Council) framework.' : '* Bu veriler GLEC (Global Logistics Emissions Council) çerçevesindeki ortalama (default) faktörlerdir.';
-            document.getElementById('disclaimer3').innerText = isEn ? '✔️ Calculations utilize average emission factors aligned with the GLEC Framework. Shipments under buyer-responsible Incoterms (EXW, FCA, etc.) are excluded.' : '* Hesaplamalar, GLEC Çerçevesi ile uyumlu ortalama emisyon faktörlerine dayanmaktadır. Alıcının sorumluluğunda olan Incoterms (EXW, FCA, vb.) kapsamındaki gönderiler hariç tutulmuştur.';
-
-            renderGreenAnalysis(records);
-        }
-
-        function initPeriods() {
-            const sel = document.getElementById('periodSelect');
-            sel.innerHTML = '';
-            periods.sort().forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p;
-                opt.innerText = p;
-                if(p === activePeriod) opt.selected = true;
-                sel.appendChild(opt);
+        // --- 4. VERİ ÇEKME & YAZMA ---
+        function loadDataFromCloud() {
+            if (!currentUserUid) return;
+            db.collection("workspaces").doc(currentUserUid).get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data(); 
+                    records = data.logisticsRecords || []; 
+                    rawImporters = data.importers || [];
+                    importers = rawImporters.map(i => (typeof i === 'string') ? { name: i, country:'', city:'', distSea:0, distRoad:0, distAir:0 } : i);
+                    transporters = data.transporters || []; 
+                    periods = data.periods || ['2025', '2026'];
+                    if(data.appSettings) { appSettings = data.appSettings; applySettings(); }
+                }
+                initPeriods(); refreshData(); updateDropdowns(); toggleFields();
+                document.getElementById('commInvDate').valueAsDate = new Date();
+                document.getElementById('printDate').innerText = new Date().toLocaleDateString('tr-TR');
+            }).catch((error) => { 
+                console.error("Veri çekme hatası:", error); 
+                alert("Veriler buluttan alınırken bir hata oluştu."); 
             });
-            document.getElementById('printPeriod').innerText = activePeriod;
-            updatePeriodLabels();
+        }
+        
+        function syncToCloud() {
+            if (!currentUserUid) return;
+            const workspaceData = { 
+                logisticsRecords: records, 
+                importers: rawImporters.length > 0 ? rawImporters : importers, 
+                transporters: transporters, 
+                periods: periods, 
+                appSettings: appSettings 
+            };
+            db.collection("workspaces").doc(currentUserUid).set(workspaceData, { merge: true }).catch((error) => console.error(error));
         }
 
-        function addNewPeriod() {
-            const newP = prompt("Yeni dönem yılını giriniz (Örn: 2027):");
-            if(newP && !periods.includes(newP) && newP.length === 4 && !isNaN(newP)) {
-                periods.push(newP);
-                syncToCloud();
-                activePeriod = newP;
-                localStorage.setItem('activePeriod', activePeriod);
-                initPeriods();
-                refreshData();
-            } else if (periods.includes(newP)) {
-                alert("Bu dönem zaten mevcut.");
+        // --- FORM AÇ/KAPA ---
+        function toggleRecordForm(forceShow = false) {
+            const form = document.getElementById('formSection');
+            if (forceShow || form.classList.contains('hidden')) {
+                form.classList.remove('hidden');
+            } else {
+                form.classList.add('hidden');
             }
         }
 
-        function changePeriod() {
-            activePeriod = document.getElementById('periodSelect').value;
-            localStorage.setItem('activePeriod', activePeriod);
-            document.getElementById('printPeriod').innerText = activePeriod;
-            updatePeriodLabels();
-            refreshData();
+        // --- YAPAY ZEKA TREND YORUMU ---
+        function generateTrendAnalysis(monthlyData) {
+            const txtBox = document.getElementById('trendAnalysisText');
+            const keys = Object.keys(monthlyData);
+            if(keys.length === 0) { txtBox.innerHTML = "Analiz için yeterli veri yok."; return; }
+            
+            let total = 0; let maxM = keys[0]; let minM = keys[0];
+            keys.forEach(k => {
+                let v = monthlyData[k];
+                total += v;
+                if(v > monthlyData[maxM]) maxM = k;
+                if(v < monthlyData[minM]) minM = k;
+            });
+            let avg = total / keys.length;
+            
+            let trendHtml = `<b>Yapay Zeka Görüşü:</b> Bu yılki ortalama aylık komisyon hacminiz <b>${formatMoney(avg, 'USD')}</b> civarında. En verimli ayınız <b>${maxM}</b> olurken, en zayıf ayınız <b>${minM}</b> olarak kaydedildi. `;
+            if(keys.length > 1) {
+                let lastMonth = monthlyData[keys[keys.length-1]];
+                let prevMonth = monthlyData[keys[keys.length-2]];
+                if(lastMonth > prevMonth) trendHtml += `Son aya göre grafikte <b>yükseliş trendi</b> gözleniyor, tebrikler! 🚀`;
+                else trendHtml += `Son ay grafiğinde <b>düşüş</b> var, tahsilat ve yeni işlere odaklanma zamanı. 📈`;
+            }
+            txtBox.innerHTML = trendHtml;
         }
 
-        function updatePeriodLabels() {
-            const p = getActiveParity();
-            document.getElementById('aiYearDisplay').innerText = activePeriod;
-            document.getElementById('activePeriodLabel1').innerText = activePeriod;
-            document.getElementById('activePeriodLabel2').innerText = activePeriod;
-            document.getElementById('activePeriodLabel3').innerText = activePeriod;
-            document.getElementById('pastPeriodLabel').innerText = activePeriod;
-            document.getElementById('parityLabel').innerText = p.toFixed(2);
+        // --- DÖNEM YÖNETİMİ ---
+        function initPeriods() { 
+            const sel = document.getElementById('periodSelect'); sel.innerHTML = ''; 
+            periods.sort().forEach(p => { 
+                const opt = document.createElement('option'); opt.value = p; opt.innerText = p; 
+                if(p === activePeriod) opt.selected = true; 
+                sel.appendChild(opt); 
+            }); 
+            document.getElementById('printPeriod').innerText = activePeriod; 
+            updatePeriodLabels(); 
+        }
+        
+        function addNewPeriod() { 
+            const newP = prompt("Yeni dönem yılını giriniz (Örn: 2027):"); 
+            if(newP && !periods.includes(newP) && newP.length === 4 && !isNaN(newP)) { 
+                periods.push(newP); syncToCloud(); activePeriod = newP; localStorage.setItem('activePeriod', activePeriod); initPeriods(); refreshData(); 
+            } else if (periods.includes(newP)) { alert("Bu dönem zaten mevcut."); } 
+        }
+        
+        function changePeriod() { 
+            activePeriod = document.getElementById('periodSelect').value; localStorage.setItem('activePeriod', activePeriod); 
+            document.getElementById('printPeriod').innerText = activePeriod; updatePeriodLabels(); refreshData(); 
+        }
+        
+        function updatePeriodLabels() { 
+            const p = getActiveParity(); 
+            document.getElementById('aiYearDisplay').innerText = activePeriod; 
+            document.getElementById('activePeriodLabel1').innerText = activePeriod; 
+            document.getElementById('activePeriodLabel2').innerText = activePeriod; 
+            document.getElementById('activePeriodLabel3').innerText = activePeriod; 
+            document.getElementById('pastPeriodLabel').innerText = activePeriod; 
+            document.getElementById('parityLabel').innerText = p.toFixed(2); 
         }
 
+        // --- VERİ FİLTRELEME & LİSTELEME ---
         function refreshData() {
             const filteredRecords = getFilteredRecords();
             renderTable(filteredRecords);
@@ -954,61 +859,52 @@
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const startDate = document.getElementById('filterStartDate').value;
             const endDate = document.getElementById('filterEndDate').value;
-
             return records.filter(rec => {
                 const recYear = rec.commInvDate.substring(0, 4);
                 if (recYear !== activePeriod) return false;
-
-                const textMatch = 
-                    (rec.importer || '').toLowerCase().includes(searchText) || 
-                    (rec.transporter || '').toLowerCase().includes(searchText) || 
-                    (rec.type || '').toLowerCase().includes(searchText) ||
-                    (rec.commInvNo || '').toLowerCase().includes(searchText) ||
-                    (rec.destCountry || '').toLowerCase().includes(searchText) ||
-                    (rec.incoterm || '').toLowerCase().includes(searchText) ||
-                    (rec.destCity || '').toLowerCase().includes(searchText);
-                
-                let dateMatch = true;
-                if(startDate && rec.commInvDate < startDate) dateMatch = false;
-                if(endDate && rec.commInvDate > endDate) dateMatch = false;
+                const textMatch = (rec.importer || '').toLowerCase().includes(searchText) || (rec.transporter || '').toLowerCase().includes(searchText) || (rec.type || '').toLowerCase().includes(searchText) || (rec.commInvNo || '').toLowerCase().includes(searchText) || (rec.destCountry || '').toLowerCase().includes(searchText) || (rec.incoterm || '').toLowerCase().includes(searchText) || (rec.destCity || '').toLowerCase().includes(searchText);
+                let dateMatch = true; 
+                if(startDate && rec.commInvDate < startDate) dateMatch = false; 
+                if(endDate && rec.commInvDate > endDate) dateMatch = false; 
                 return textMatch && dateMatch;
             });
         }
 
-        function switchView(viewName) {
-            const mainView = document.getElementById('mainView');
-            const analysisView = document.getElementById('analysisView');
-            const greenView = document.getElementById('greenView');
-            const btnMain = document.getElementById('btnMainView');
-            const btnAnalysis = document.getElementById('btnAnalysisView');
-            const btnGreen = document.getElementById('btnGreenView');
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            refreshData();
+        }
 
+        function switchView(viewName) {
+            const mainView = document.getElementById('mainView'); const analysisView = document.getElementById('analysisView'); const greenView = document.getElementById('greenView');
+            const btnMain = document.getElementById('btnMainView'); const btnAnalysis = document.getElementById('btnAnalysisView'); const btnGreen = document.getElementById('btnGreenView');
             [mainView, analysisView, greenView].forEach(el => el.classList.add('hidden'));
             
-            if (viewName === 'main') {
-                mainView.classList.remove('hidden');
-                btnMain.classList.add('bg-slate-700', 'text-white'); btnMain.classList.remove('bg-white', 'text-slate-700');
-                btnAnalysis.classList.remove('bg-indigo-600', 'text-white'); btnAnalysis.classList.add('bg-white', 'text-indigo-600');
-                btnGreen.classList.remove('bg-emerald-700', 'text-white'); btnGreen.classList.add('bg-emerald-600', 'text-white');
-            } else if (viewName === 'analysis') {
-                analysisView.classList.remove('hidden'); refreshData();
-                btnMain.classList.remove('bg-slate-700', 'text-white'); btnMain.classList.add('bg-white', 'text-slate-700');
-                btnAnalysis.classList.add('bg-indigo-600', 'text-white'); btnAnalysis.classList.remove('bg-white', 'text-indigo-600');
-                btnGreen.classList.remove('bg-emerald-700'); btnGreen.classList.add('bg-emerald-600');
-            } else {
-                greenView.classList.remove('hidden'); refreshData();
-                btnMain.classList.remove('bg-slate-700', 'text-white'); btnMain.classList.add('bg-white', 'text-slate-700');
-                btnAnalysis.classList.remove('bg-indigo-600', 'text-white'); btnAnalysis.classList.add('bg-white', 'text-indigo-600');
-                btnGreen.classList.add('bg-emerald-700', 'text-white'); btnGreen.classList.remove('bg-emerald-600');
+            if (viewName === 'main') { 
+                mainView.classList.remove('hidden'); 
+                btnMain.classList.add('bg-slate-700', 'text-white'); btnMain.classList.remove('bg-white', 'text-slate-700'); 
+                btnAnalysis.classList.remove('bg-indigo-600', 'text-white'); btnAnalysis.classList.add('bg-white', 'text-indigo-600'); 
+                btnGreen.classList.remove('bg-emerald-700', 'text-white'); btnGreen.classList.add('bg-emerald-600', 'text-white'); 
+            } else if (viewName === 'analysis') { 
+                analysisView.classList.remove('hidden'); refreshData(); 
+                btnMain.classList.remove('bg-slate-700', 'text-white'); btnMain.classList.add('bg-white', 'text-slate-700'); 
+                btnAnalysis.classList.add('bg-indigo-600', 'text-white'); btnAnalysis.classList.remove('bg-white', 'text-indigo-600'); 
+                btnGreen.classList.remove('bg-emerald-700'); btnGreen.classList.add('bg-emerald-600'); 
+            } else { 
+                greenView.classList.remove('hidden'); refreshData(); 
+                btnMain.classList.remove('bg-slate-700', 'text-white'); btnMain.classList.add('bg-white', 'text-slate-700'); 
+                btnAnalysis.classList.remove('bg-indigo-600', 'text-white'); btnAnalysis.classList.add('bg-white', 'text-indigo-600'); 
+                btnGreen.classList.add('bg-emerald-700', 'text-white'); btnGreen.classList.remove('bg-emerald-600'); 
             }
         }
 
         function renderTable(data) {
-            const tbody = document.getElementById('recordsTableBody');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('recordsTableBody'); tbody.innerHTML = '';
             let tEUR = 0, tUSD = 0, tTL = 0;
             const sortedData = [...data].sort((a, b) => new Date(b.commInvDate) - new Date(a.commInvDate));
-
+            
             sortedData.forEach(rec => {
                 let cleanCurr = normalizeCurrency(rec.currency);
                 if (cleanCurr === 'EUR') tEUR += rec.commission; else tUSD += rec.commission;
@@ -1020,62 +916,293 @@
                 if(rec.incoterm) details += `<span class="block text-xs font-bold text-purple-600">Incoterm: ${rec.incoterm}</span>`;
                 
                 const typeIcon = rec.type === 'Deniz' ? '<i class="fa-solid fa-ship text-blue-500"></i>' : rec.type === 'Kara' ? '<i class="fa-solid fa-truck text-orange-500"></i>' : '<i class="fa-solid fa-plane text-sky-500"></i>';
-                
                 let hasInvoice = rec.commInvNo && rec.commInvNo.trim() !== '';
                 let statusBadge = "";
                 
-                if (rec.isExempt) {
-                    statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-500 border border-slate-300">Muaf</span>';
-                } else if (!hasInvoice) {
-                    statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700">Faturalanacak</span>';
-                } else if (!rec.isPaid) {
-                    statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-700">Tahsilat</span>';
-                } else {
-                    statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">Tamamlandı</span>';
-                }
+                if (rec.isExempt) statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-500 border border-slate-300">Muaf</span>'; 
+                else if (!hasInvoice) statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700">Faturalanacak</span>'; 
+                else if (!rec.isPaid) statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-700">Tahsilat</span>'; 
+                else statusBadge = '<span class="px-2 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">Tamamlandı</span>';
                 
-                let dateBadgeClass = "font-bold text-slate-700";
-                
-                let greenWarning = "";
-                let isGreenExcluded = BUYER_RESPONSIBLE_INCOTERMS.includes(rec.incoterm);
-                
-                if (!isGreenExcluded) {
-                    let w = parseFloat(rec.weightKg) || 0;
-                    let d = (parseFloat(rec.distSea)||0) + (parseFloat(rec.distRoad)||0) + (parseFloat(rec.distAir)||0);
-                    if(w === 0 || d === 0) {
-                         greenWarning = `<i class="fa-solid fa-leaf text-gray-300 ml-2" title="Yeşil Lojistik Verisi Eksik (Kg/Km)"></i><span class="text-[10px] text-red-300 ml-1">⚠️</span>`;
-                    }
+                let greenWarning = ""; let isGreenExcluded = BUYER_RESPONSIBLE_INCOTERMS.includes(rec.incoterm);
+                if (!isGreenExcluded) { 
+                    let w = parseFloat(rec.weightKg) || 0; let d = (parseFloat(rec.distSea)||0) + (parseFloat(rec.distRoad)||0) + (parseFloat(rec.distAir)||0); 
+                    if(w === 0 || d === 0) greenWarning = `<i class="fa-solid fa-leaf text-gray-300 ml-2" title="Yeşil Lojistik Verisi Eksik"></i><span class="text-[10px] text-red-300 ml-1">⚠️</span>`; 
                 }
 
-                let distDisplay = "";
-                if((parseFloat(rec.distSea)||0) > 0) distDisplay += `<i class="fa-solid fa-ship text-[10px] text-blue-400"></i> ${rec.distSea} `;
-                if((parseFloat(rec.distRoad)||0) > 0) distDisplay += `<i class="fa-solid fa-truck text-[10px] text-orange-400"></i> ${rec.distRoad} `;
+                let distDisplay = ""; 
+                if((parseFloat(rec.distSea)||0) > 0) distDisplay += `<i class="fa-solid fa-ship text-[10px] text-blue-400"></i> ${rec.distSea} `; 
+                if((parseFloat(rec.distRoad)||0) > 0) distDisplay += `<i class="fa-solid fa-truck text-[10px] text-orange-400"></i> ${rec.distRoad} `; 
                 if((parseFloat(rec.distAir)||0) > 0) distDisplay += `<i class="fa-solid fa-plane text-[10px] text-sky-400"></i> ${rec.distAir}`;
                 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-gray-100">
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <div class="${dateBadgeClass} inline-block mb-1">${rec.commInvDate}</div>
-                            <div class="text-xs text-slate-400">${hasInvoice ? rec.commInvNo : 'BEKLİYOR'}</div>
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="font-medium text-slate-800">${rec.importer || '-'}</div>
-                            <div class="text-xs text-blue-600 font-semibold mt-0.5"><i class="fa-solid fa-location-dot"></i> ${rec.destCountry || ''} ${rec.destCity ? '/ '+rec.destCity : ''}</div>
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="flex items-center gap-2 mb-1">${typeIcon} <span class="font-bold text-xs bg-slate-100 px-1 rounded text-slate-600">${rec.type}</span> ${greenWarning}</div>
-                            <div class="text-[10px] text-gray-500">${distDisplay}</div>
-                            ${rec.incoterm ? `<div class="text-[10px] font-bold text-purple-700 bg-purple-50 inline-block px-1 rounded mt-1">${rec.incoterm}</div>` : ''}
-                        </td>
-                        <td class="px-4 py-3 text-right text-slate-600">${formatMoney(rec.freight, cleanCurr)}</td>
-                        <td class="px-4 py-3 text-right font-bold text-blue-600">${formatMoney(rec.commission, cleanCurr)}</td>
-                        <td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>
-                        <td class="px-4 py-3 text-center no-print"><button onclick="editRecord('${rec.id}')" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen"></i></button><button onclick="deleteRecord('${rec.id}')" class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>`;
+                <tr class="hover:bg-slate-50 border-b border-gray-100">
+                    <td class="px-4 py-3 whitespace-nowrap"><div class="font-bold text-slate-700 inline-block mb-1">${rec.commInvDate}</div><div class="text-xs text-slate-400">${hasInvoice ? rec.commInvNo : 'BEKLİYOR'}</div></td>
+                    <td class="px-4 py-3"><div class="font-medium text-slate-800">${rec.importer || '-'}</div><div class="text-xs text-blue-600 font-semibold mt-0.5"><i class="fa-solid fa-location-dot"></i> ${rec.destCountry || ''} ${rec.destCity ? '/ '+rec.destCity : ''}</div></td>
+                    <td class="px-4 py-3"><div class="flex items-center gap-2 mb-1">${typeIcon} <span class="font-bold text-xs bg-slate-100 px-1 rounded text-slate-600">${rec.type}</span> ${greenWarning}</div><div class="text-[10px] text-gray-500">${distDisplay}</div>${rec.incoterm ? `<div class="text-[10px] font-bold text-purple-700 bg-purple-50 inline-block px-1 rounded mt-1">${rec.incoterm}</div>` : ''}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${formatMoney(rec.freight, cleanCurr)}</td>
+                    <td class="px-4 py-3 text-right font-bold text-blue-600">${formatMoney(rec.commission, cleanCurr)}</td>
+                    <td class="px-4 py-3 text-center whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-4 py-3 text-center no-print"><button onclick="editRecord('${rec.id}')" class="text-blue-500 hover:text-blue-700 mx-1"><i class="fa-solid fa-pen"></i></button><button onclick="deleteRecord('${rec.id}')" class="text-red-500 hover:text-red-700 mx-1"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`;
             });
+            
             document.getElementById('totalEUR').innerText = formatMoney(tEUR, 'EUR'); 
             document.getElementById('totalUSD').innerText = formatMoney(tUSD, 'USD');
             document.getElementById('totalTL').innerText = tTL.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+        }
+
+        // --- FİNANSAL ANALİZ TABLOLARI ---
+        function renderAnalysis(allData) {
+            const currentParity = getActiveParity();
+            let totalCommEUR=0, totalCommUSD=0, unpaidEUR=0, unpaidUSD=0, unbilledEUR=0, unbilledUSD=0;
+            let totalFreightEUR=0, totalFreightUSD=0;
+            let totalCommTL = 0, unpaidTL = 0, unbilledTL = 0; 
+            
+            let monthlyData={}, monthlyBreakdown={}, typeData={'Deniz':0, 'Kara':0, 'Hava':0}, transporterDebt={};
+            let unbilledList=[], pastDebtList=[], unpaidBreakdownList = [];
+            let pastDebtEUR = 0; let pastDebtUSD = 0; let pastDebtTL = 0;
+
+            allData.forEach(rec => {
+                let cleanCurr = normalizeCurrency(rec.currency);
+                let hasInvoice = rec.commInvNo && rec.commInvNo.trim() !== '';
+                let recYear = rec.commInvDate.substring(0,4);
+                let isCurrentPeriod = recYear === activePeriod;
+                let isPastPeriod = recYear < activePeriod;
+                let rate = parseFloat(rec.exchangeRate) || 0;
+
+                if (hasInvoice && !rec.isPaid) {
+                    let tName = rec.transporter || 'Tanımsız';
+                    if (!transporterDebt[tName]) transporterDebt[tName] = { count: 0, eur: 0, usd: 0 };
+                    transporterDebt[tName].count += 1;
+                    if (cleanCurr === 'EUR') transporterDebt[tName].eur += rec.commission; else transporterDebt[tName].usd += rec.commission;
+                }
+
+                if (isPastPeriod && hasInvoice && !rec.isPaid) {
+                    pastDebtList.push(rec);
+                    if(cleanCurr === 'EUR') pastDebtEUR += rec.commission; else pastDebtUSD += rec.commission;
+                    pastDebtTL += (rec.commission * rate);
+                }
+
+                if (isCurrentPeriod) {
+                    let tlValue = rec.commission * rate;
+                    totalCommTL += tlValue;
+
+                    if (cleanCurr === 'EUR') {
+                        totalCommEUR += rec.commission; totalFreightEUR += rec.freight;
+                        if (!hasInvoice && !rec.isExempt) { unbilledEUR += rec.commission; unbilledTL += tlValue; }
+                        else if (hasInvoice && !rec.isPaid) { unpaidEUR += rec.commission; unpaidTL += tlValue; }
+                    } else {
+                        totalCommUSD += rec.commission; totalFreightUSD += rec.freight;
+                        if (!hasInvoice && !rec.isExempt) { unbilledUSD += rec.commission; unbilledTL += tlValue; }
+                        else if (hasInvoice && !rec.isPaid) { unpaidUSD += rec.commission; unpaidTL += tlValue; }
+                    }
+                    
+                    if(!hasInvoice && !rec.isExempt) { unbilledList.push(rec); } else if(hasInvoice && !rec.isPaid) { unpaidBreakdownList.push(rec); }
+
+                    let month = rec.commInvDate.substring(0, 7);
+                    if (!monthlyBreakdown[month]) monthlyBreakdown[month] = { fEUR:0, cEUR:0, fUSD:0, cUSD:0 };
+                    if (cleanCurr === 'EUR') { monthlyBreakdown[month].fEUR += rec.freight; monthlyBreakdown[month].cEUR += rec.commission; } 
+                    else { monthlyBreakdown[month].fUSD += rec.freight; monthlyBreakdown[month].cUSD += rec.commission; }
+                    let graphVal = cleanCurr === 'USD' ? rec.commission * (1/currentParity) : rec.commission;
+                    if (!monthlyData[month]) monthlyData[month] = 0; monthlyData[month] += graphVal;
+                    if (typeData[rec.type] !== undefined) typeData[rec.type] += graphVal;
+                }
+            });
+
+            let grandTotal = totalCommUSD + (totalCommEUR * currentParity);
+            document.getElementById('grandTotalUSD').innerText = formatMoney(grandTotal, 'USD');
+
+            let riskEUR = unpaidEUR + pastDebtEUR;
+            let riskUSD = unpaidUSD + pastDebtUSD;
+            let riskTL = unpaidTL + pastDebtTL;
+            let consolidatedRiskUSD = riskUSD + (riskEUR * currentParity);
+
+            document.getElementById('totalRiskEUR').innerText = formatMoney(riskEUR, 'EUR');
+            document.getElementById('totalRiskUSD').innerText = formatMoney(riskUSD, 'USD');
+            document.getElementById('totalRiskConsolidated').innerText = formatMoney(consolidatedRiskUSD, 'USD');
+            document.getElementById('totalRiskTL').innerText = riskTL.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+
+            document.getElementById('kpiTotalCommission').innerHTML = `<div class="flex justify-between border-b pb-1 mb-1"><span class="kpi-label-sm">DÖVİZ CİRO</span><span class="kpi-value-sm text-indigo-700">${formatMoney(totalCommUSD + (totalCommEUR*currentParity),'USD')}</span></div><div class="flex justify-between"><span class="kpi-label-sm text-slate-500">TL CİRO</span><span class="kpi-value-sm text-slate-700 font-bold">${totalCommTL.toLocaleString('tr-TR')} ₺</span></div>`;
+            document.getElementById('kpiUnpaid').innerHTML = `<div class="flex justify-between border-b pb-1 mb-1"><span class="kpi-label-sm">DÖVİZ RİSK</span><span class="kpi-value-sm text-red-600">${formatMoney(unpaidUSD + (unpaidEUR*currentParity),'USD')}</span></div><div class="flex justify-between"><span class="kpi-label-sm text-slate-500">TL RİSK</span><span class="kpi-value-sm text-slate-700 font-bold">${unpaidTL.toLocaleString('tr-TR')} ₺</span></div>`;
+            document.getElementById('kpiUnbilled').innerHTML = `<div class="flex justify-between border-b pb-1 mb-1"><span class="kpi-label-sm">DÖVİZ FAT</span><span class="kpi-value-sm text-yellow-600">${formatMoney(unbilledUSD + (unbilledEUR*currentParity),'USD')}</span></div><div class="flex justify-between"><span class="kpi-label-sm text-slate-500">TL FAT</span><span class="kpi-value-sm text-slate-700 font-bold">${unbilledTL.toLocaleString('tr-TR')} ₺</span></div>`;
+            
+            let totalF = totalFreightEUR + (totalFreightUSD * (1/currentParity)); 
+            let totalC = totalCommEUR + (totalCommUSD * (1/currentParity));
+            document.getElementById('kpiAvgRate').innerText = totalF > 0 ? '%' + ((totalC / totalF) * 100).toFixed(1) : '%0.0';
+
+            const currentYearRecords = allData.filter(r => r.commInvDate.substring(0,4) === activePeriod);
+            generateAdvancedInsights(currentYearRecords, unbilledList.length, grandTotal);
+            renderCharts(monthlyData, typeData);
+            generateTrendAnalysis(monthlyData);
+            renderMonthlyTable(monthlyBreakdown);
+            renderVatTable(monthlyBreakdown);
+            renderDebtSummary(transporterDebt);
+            renderUnbilledTable(unbilledList);
+            renderPastDebtTable(pastDebtList);
+            renderUnpaidBreakdown(unpaidBreakdownList);
+            renderUnbilledBreakdown(unbilledList);
+        }
+
+        function renderDebtSummary(data) { 
+            const tbody = document.getElementById('debtTableBody'); tbody.innerHTML = ''; 
+            const sortedFirms = Object.keys(data).sort(); 
+            if(sortedFirms.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400">Bekleyen ödeme yok.</td></tr>'; return;} 
+            
+            let maxTotal = 0;
+            const firmsWithTotal = sortedFirms.map(firm => {
+                let d = data[firm];
+                let totalScore = d.eur + d.usd; 
+                if(totalScore > maxTotal) maxTotal = totalScore;
+                return { name: firm, count: d.count, eur: d.eur, usd: d.usd, score: totalScore };
+            }).sort((a,b) => b.score - a.score); 
+
+            firmsWithTotal.forEach(f => { 
+                let percent = maxTotal > 0 ? (f.score / maxTotal) * 100 : 0;
+                let valStr = []; if(f.eur > 0) valStr.push(formatMoney(f.eur, 'EUR')); if(f.usd > 0) valStr.push(formatMoney(f.usd, 'USD'));
+                tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-3 py-3">
+                        <div class="font-bold text-slate-700">${f.name}</div>
+                        <div class="progress-bg"><div class="progress-bar" style="width: ${percent}%"></div></div>
+                    </td>
+                    <td class="px-3 py-3 text-center text-slate-500 font-bold">${f.count} Dosya</td>
+                    <td class="px-3 py-3 text-right font-bold text-red-600">${valStr.join('<br>')}</td>
+                </tr>`; 
+            }); 
+        }
+
+        function renderMonthlyTable(data) { 
+            const tbody = document.getElementById('monthlyTableBody'); tbody.innerHTML = ''; 
+            const sortedMonths = Object.keys(data).sort().reverse(); 
+            sortedMonths.forEach(m => { 
+                let d = data[m]; 
+                tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-3 py-3 font-bold text-slate-700"><i class="fa-regular fa-calendar text-slate-400 mr-1"></i> ${m}</td>
+                    <td class="px-3 py-3 text-right text-slate-500">${formatMoney(d.fEUR, 'EUR')}</td>
+                    <td class="px-3 py-3 text-right font-bold text-indigo-600 bg-indigo-50/50 rounded-l">${formatMoney(d.cEUR, 'EUR')}</td>
+                    <td class="px-3 py-3 text-right text-slate-500">${formatMoney(d.fUSD, 'USD')}</td>
+                    <td class="px-3 py-3 text-right font-bold text-emerald-600 bg-emerald-50/50 rounded-r">${formatMoney(d.cUSD, 'USD')}</td>
+                </tr>`; 
+            }); 
+        }
+
+        function renderVatTable(data) { 
+            const tbody = document.getElementById('vatTableBody'); tbody.innerHTML = ''; 
+            let t_gEUR = 0, t_vEUR = 0, t_nEUR = 0; let t_gUSD = 0, t_vUSD = 0, t_nUSD = 0; 
+            const sortedMonths = Object.keys(data).sort().reverse(); 
+            sortedMonths.forEach(m => { 
+                let d = data[m]; let gE = d.cEUR, nE = gE / 1.20, vE = gE - nE; let gU = d.cUSD, nU = gU / 1.20, vU = gU - nU; 
+                t_gEUR += gE; t_vEUR += vE; t_nEUR += nE; t_gUSD += gU; t_vUSD += vU; t_nUSD += nU; 
+                tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="px-4 py-2 font-bold text-slate-700">${m}</td>
+                    <td class="px-4 py-2 text-right text-slate-600">${formatMoney(gE, 'EUR')}</td>
+                    <td class="px-4 py-2 text-right text-red-500 font-mono text-xs">${formatMoney(vE, 'EUR')}</td>
+                    <td class="px-4 py-2 text-right font-bold text-blue-700 bg-blue-50/50">${formatMoney(nE, 'EUR')}</td>
+                    <td class="px-4 py-2 text-right text-slate-600">${formatMoney(gU, 'USD')}</td>
+                    <td class="px-4 py-2 text-right text-red-500 font-mono text-xs">${formatMoney(vU, 'USD')}</td>
+                    <td class="px-4 py-2 text-right font-bold text-emerald-700 bg-emerald-50/50">${formatMoney(nU, 'USD')}</td>
+                </tr>`; 
+            }); 
+            document.getElementById('vatTotalGrossEUR').innerText = formatMoney(t_gEUR, 'EUR'); 
+            document.getElementById('vatTotalVatEUR').innerText = formatMoney(t_vEUR, 'EUR'); 
+            document.getElementById('vatTotalNetEUR').innerText = formatMoney(t_nEUR, 'EUR'); 
+            document.getElementById('vatTotalGrossUSD').innerText = formatMoney(t_gUSD, 'USD'); 
+            document.getElementById('vatTotalVatUSD').innerText = formatMoney(t_vUSD, 'USD'); 
+            document.getElementById('vatTotalNetUSD').innerText = formatMoney(t_nUSD, 'USD'); 
+        }
+
+        function renderCharts(monthlyData, typeData) { 
+            const ctx1 = document.getElementById('monthlyChart').getContext('2d'); 
+            if (chartInstance1) chartInstance1.destroy(); 
+            const allMonths = Object.keys(monthlyData).sort(); const last6Months = allMonths.slice(-12); const data1 = last6Months.map(m => monthlyData[m]); 
+            chartInstance1 = new Chart(ctx1, { type: 'line', data: { labels: last6Months, datasets: [{ label: 'Komisyon ($)', data: data1, borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#8b5cf6', pointRadius: 5, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false } }); 
+            const ctx2 = document.getElementById('typeChart').getContext('2d'); 
+            if (chartInstance2) chartInstance2.destroy(); 
+            chartInstance2 = new Chart(ctx2, { type: 'polarArea', data: { labels: Object.keys(typeData), datasets: [{ data: Object.values(typeData), backgroundColor: ['rgba(59, 130, 246, 0.6)', 'rgba(245, 158, 11, 0.6)', 'rgba(236, 72, 153, 0.6)'], borderColor: ['#3b82f6', '#f59e0b', '#ec4899'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: 'rgba(0,0,0,0.05)' } } } } }); 
+        }
+
+        function renderUnpaidBreakdown(list) { const tbody = document.getElementById('unpaidBreakdownBody'); tbody.innerHTML = ''; list.sort((a,b) => b.commission - a.commission); if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-2 text-gray-400 italic">Kayıt yok.</td></tr>'; return; } list.forEach(r => { let cur = normalizeCurrency(r.currency); tbody.innerHTML += `<tr><td class="px-2 py-1 text-slate-700">${r.transporter}</td><td class="px-2 py-1 text-slate-600">${r.importer}</td><td class="px-2 py-1 text-right font-bold text-red-600">${formatMoney(r.commission, cur)}</td></tr>`; }); }
+        function renderUnbilledBreakdown(list) { const tbody = document.getElementById('unbilledBreakdownBody'); tbody.innerHTML = ''; let summary = {}; list.forEach(r => { let cur = normalizeCurrency(r.currency); let key = (r.importer || 'Bilinmiyor') + '||' + (r.transporter || 'Bilinmiyor'); if(!summary[key]) summary[key] = { eur: 0, usd: 0 }; if(cur === 'EUR') summary[key].eur += r.commission; else summary[key].usd += r.commission; }); if(Object.keys(summary).length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-2 text-gray-400 italic">Kayıt yok.</td></tr>'; return; } Object.keys(summary).sort().forEach(key => { let parts = key.split('||'); let d = summary[key]; let valStr = []; if(d.eur > 0) valStr.push(formatMoney(d.eur, 'EUR')); if(d.usd > 0) valStr.push(formatMoney(d.usd, 'USD')); tbody.innerHTML += `<tr><td class="px-2 py-1 font-medium text-slate-700">${parts[0]}</td><td class="px-2 py-1 text-slate-500">${parts[1]}</td><td class="px-2 py-1 text-right font-bold text-yellow-700">${valStr.join(' + ')}</td></tr>`; }); }
+        function renderUnbilledTable(list) { const tbody = document.getElementById('unbilledTableBody'); tbody.innerHTML = ''; list.forEach(rec => { tbody.innerHTML += `<tr class="hover:bg-yellow-50"><td class="px-4 py-2">${rec.commInvDate}</td><td class="px-4 py-2">${rec.importer}</td><td class="px-4 py-2 text-slate-500">${rec.transporter}</td><td class="px-4 py-2 text-right font-bold text-yellow-700">${formatMoney(rec.commission, normalizeCurrency(rec.currency))}</td><td class="px-4 py-2 text-center"><span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-xs font-bold">FATURA KESİLECEK</span></td></tr>`; }); }
+        function renderPastDebtTable(list) { const c = document.getElementById('pastDebtContainer'); const t = document.getElementById('pastDebtTableBody'); if(list.length===0){c.classList.add('hidden');return;} c.classList.remove('hidden'); t.innerHTML=''; let tE=0, tU=0; list.forEach(r => { let cur = normalizeCurrency(r.currency); if(cur==='EUR') tE+=r.commission; else tU+=r.commission; t.innerHTML+=`<tr class="hover:bg-red-50 border-b border-red-100"><td class="px-3 py-2">${r.commInvDate}</td><td class="px-3 py-2 font-bold text-slate-700">${r.importer}</td> <td class="px-3 py-2 text-slate-500">${r.transporter}</td><td class="px-3 py-2">${r.commInvNo}</td><td class="px-3 py-2 text-right font-bold">${formatMoney(r.commission, cur)}</td><td class="px-3 py-2 text-center text-xs font-bold uppercase">Tahsilat Bekliyor</td></tr>`; }); document.getElementById('pastDebtTotalEUR').innerText = formatMoney(tE, 'EUR'); document.getElementById('pastDebtTotalUSD').innerText = formatMoney(tU, 'USD'); }
+        
+        function generateAdvancedInsights(currentData, unbilledCount, totalCommBase) {
+            const list = document.getElementById('aiInsightList'); list.innerHTML = ''; 
+            if (currentData.length === 0) { list.innerHTML = '<div class="text-slate-400 italic">Analiz için veri bekleniyor...</div>'; return; }
+            let effScore = (totalCommBase / currentData.length).toFixed(0);
+            list.innerHTML += `<div class="ai-insight-box green-box"><div><i class="fa-solid fa-gauge-high ai-icon"></i><div class="ai-title">Operasyonel Verimlilik</div><div class="ai-text">Dosya başına ortalama kârlılık <b>${effScore} $</b> seviyesinde gerçekleşti.</div></div></div>`;
+            const totalInvoiced = currentData.filter(r => r.commInvNo).length; 
+            const paidInvoiced = currentData.filter(r => r.commInvNo && r.isPaid).length;
+            const collRate = totalInvoiced > 0 ? ((paidInvoiced / totalInvoiced) * 100).toFixed(0) : 0;
+            let collClass = collRate < 50 ? 'red-box' : 'blue-box';
+            list.innerHTML += `<div class="ai-insight-box ${collClass}"><div><i class="fa-solid fa-hand-holding-dollar ai-icon"></i><div class="ai-title">Nakit Akış Performansı</div><div class="ai-text">Kesilen faturaların <b>%${collRate}</b>'i tahsil edildi.</div></div></div>`;
+            const destSet = new Set(currentData.map(r => r.destCountry).filter(Boolean));
+            list.innerHTML += `<div class="ai-insight-box"><div><i class="fa-solid fa-globe ai-icon"></i><div class="ai-title">Pazar Derinliği</div><div class="ai-text">Toplam <b>${destSet.size} farklı ülkeye</b> sevkiyat gerçekleştirerek risk dağıtımı sağladınız.</div></div></div>`;
+            const transCounts = {}; currentData.forEach(r => { let t = r.transporter || 'Diğer'; transCounts[t] = (transCounts[t] || 0) + 1; });
+            const topTrans = Object.entries(transCounts).sort((a,b) => b[1]-a[1])[0];
+            const depRate = ((topTrans[1] / currentData.length) * 100).toFixed(0);
+            list.innerHTML += `<div class="ai-insight-box orange-box"><div><i class="fa-solid fa-handshake ai-icon"></i><div class="ai-title">Tedarikçi Yoğunlaşması</div><div class="ai-text">Operasyonların <b>%${depRate}'i</b> tek bir nakliyeci (${topTrans[0]}) üzerinden yürüyor.</div></div></div>`;
+            if(unbilledCount > 0) { list.innerHTML += `<div class="ai-insight-box red-box"><div><i class="fa-solid fa-bell ai-icon"></i><div class="ai-title">Operasyonel Darboğaz</div><div class="ai-text">Fatura kesilmeyi bekleyen <b>${unbilledCount}</b> adet dosya var. Muhasebeleşme süreci hızlandırılmalı.</div></div></div>`; } else { list.innerHTML += `<div class="ai-insight-box green-box"><div><i class="fa-solid fa-check-circle ai-icon"></i><div class="ai-title">Fatura Disiplini</div><div class="ai-text">Tüm operasyonlar başarıyla faturalandırılmış. Süreç mükemmel işliyor.</div></div></div>`; }
+            const seaCount = currentData.filter(r => r.type === 'Deniz').length;
+            const seaShare = ((seaCount / currentData.length) * 100).toFixed(0);
+            list.innerHTML += `<div class="ai-insight-box blue-box"><div><i class="fa-solid fa-ship ai-icon"></i><div class="ai-title">Mod Tercihi</div><div class="ai-text">İş hacminin <b>%${seaShare}'i</b> denizyolu ile gerçekleşiyor.</div></div></div>`;
+            const monthCounts = {}; currentData.forEach(r => { let m = r.commInvDate.substring(5,7); monthCounts[m] = (monthCounts[m]||0)+1; });
+            const peakMonth = Object.entries(monthCounts).sort((a,b) => b[1]-a[1])[0];
+            const monthNames = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+            list.innerHTML += `<div class="ai-insight-box"><div><i class="fa-solid fa-calendar-check ai-icon"></i><div class="ai-title">Mevsimsellik Pik</div><div class="ai-text">Yılın en yoğun dönemi <b>${monthNames[parseInt(peakMonth[0])]}</b> ayı oldu (${peakMonth[1]} sevkiyat).</div></div></div>`;
+            const eurShare = (currentData.filter(r => normalizeCurrency(r.currency) === 'EUR').length / currentData.length * 100).toFixed(0);
+            list.innerHTML += `<div class="ai-insight-box"><div><i class="fa-solid fa-money-bill-transfer ai-icon"></i><div class="ai-title">Kur Pozisyonu</div><div class="ai-text">Gelirlerin <b>%${eurShare}'i</b> Euro bazlı. Parite dalgalanmalarına karşı hedge stratejisi önerilir.</div></div></div>`;
+        }
+
+        // --- YEŞİL LOJİSTİK FONKSİYONLARI ---
+        function toggleGreenLanguage() {
+            currentGreenLang = currentGreenLang === 'tr' ? 'en' : 'tr';
+            const isEn = currentGreenLang === 'en';
+            document.getElementById('langBtnText').innerText = isEn ? '🇹🇷 Türkçe Rapor' : '🇬🇧 English Report';
+            document.getElementById('greenTitle').innerText = isEn ? 'Green Logistics & Sustainability Report' : 'Yeşil Lojistik & Sürdürülebilirlik Raporu';
+            document.getElementById('greenSubtitle').innerText = isEn ? 'Carbon Emission Analysis (Scope 3) compliant with ISO 14083 & GLEC Framework' : 'ISO 14083 & GLEC Çerçevesi Uyumlu Karbon Emisyon Analizi (Kapsam 3)';
+            document.getElementById('lblTotalCO2').innerText = isEn ? 'TOTAL CARBON FOOTPRINT' : 'TOPLAM KARBON AYAK İZİ';
+            document.getElementById('lblTrees').innerText = isEn ? 'TREES TO OFFSET' : 'TELAFI İÇİN GEREKEN';
+            document.getElementById('lblTreeUnit').innerText = isEn ? 'Mature Trees 🌳' : 'Yetişkin Ağaç 🌳';
+            document.getElementById('lblEmeaEmission').innerText = isEn ? 'Europe (EMEA) Emissions' : 'Avrupa (EMEA) Emisyonu';
+            document.getElementById('lblAmerEmission').innerText = isEn ? 'Americas (AMER) Emissions' : 'Amerika (AMER) Emisyonu';
+            document.getElementById('lblMonthlyAnalysis').innerHTML = isEn ? '<i class="fa-solid fa-calendar-week text-emerald-600 mr-2"></i>Monthly Regional Emission Analysis (Ton CO2e)' : '<i class="fa-solid fa-calendar-week text-emerald-600 mr-2"></i>Aylık Bölgesel Emisyon Analizi (Ton CO2e)';
+            document.getElementById('thMonth').innerText = isEn ? 'Month' : 'Ay';
+            document.getElementById('thTotal').innerText = isEn ? 'Total' : 'Toplam';
+            document.getElementById('lblModeBreakdown').innerHTML = isEn ? '<i class="fa-solid fa-truck-plane text-emerald-600 mr-2"></i>Emission Breakdown by Mode' : '<i class="fa-solid fa-truck-plane text-emerald-600 mr-2"></i>Mod Bazlı Emisyon Dağılımı Detayı';
+            document.getElementById('thMode').innerText = isEn ? 'Mode' : 'Mod';
+            document.getElementById('thTripCount').innerText = isEn ? 'Trip Count' : 'Toplam Sefer';
+            document.getElementById('thTotalDist').innerText = isEn ? 'Total Distance (Km)' : 'Toplam Mesafe (Km)';
+            document.getElementById('thEmission').innerText = isEn ? 'Emission (Ton CO2e)' : 'Emisyon (Ton CO2e)';
+            document.getElementById('thShare').innerText = isEn ? 'Share (%)' : 'Pay (%)';
+            document.getElementById('lblGraph').innerHTML = isEn ? '<i class="fa-solid fa-chart-pie text-emerald-500 mr-2"></i>Graphical Distribution' : '<i class="fa-solid fa-chart-pie text-emerald-500 mr-2"></i>Grafiksel Dağılım';
+            document.getElementById('lblIntensity').innerHTML = isEn ? '<i class="fa-solid fa-gauge-high text-emerald-500 mr-2"></i>Carbon Intensity (Efficiency)' : '<i class="fa-solid fa-gauge-high text-emerald-500 mr-2"></i>Karbon Yoğunluğu (Verimlilik)';
+            document.getElementById('lblIntensityNote').innerText = isEn ? '*Lower value indicates more efficient and eco-friendly operations.' : '*Düşük değer, daha verimli ve çevreci operasyonları işaret eder.';
+            document.getElementById('lblAiAdvisor').innerHTML = isEn ? '<i class="fa-solid fa-robot text-emerald-500 mr-2"></i>AI Environmental Advisor & Benchmark' : '<i class="fa-solid fa-robot text-emerald-500 mr-2"></i>AI Çevresel Danışman & Benchmark';
+            document.getElementById('lblScorecard').innerHTML = isEn ? '<i class="fa-solid fa-certificate text-emerald-600 mr-2"></i>Carrier Carbon Scorecard' : '<i class="fa-solid fa-certificate text-emerald-600 mr-2"></i>Nakliyeci Karbon Karnesi (Scorecard)';
+            document.getElementById('thTransporter').innerText = isEn ? 'Carrier' : 'Nakliyeci';
+            document.getElementById('thMode2').innerText = isEn ? 'Mode' : 'Mod';
+            document.getElementById('thWork').innerText = isEn ? 'Transport Work (Ton-Km)' : 'Taşıma İş (Ton-Km)';
+            document.getElementById('thTotalEmission').innerText = isEn ? 'Total Emission' : 'Toplam Emisyon';
+            document.getElementById('thIntensity').innerText = isEn ? 'Intensity (gCO2/tkm)' : 'Yoğunluk (gCO2/tkm)';
+            document.getElementById('thScore').innerText = isEn ? 'Score' : 'Puan';
+            document.getElementById('lblDetailedBreakdown').innerText = isEn ? 'Detailed Emission Breakdown (Scope 3 & Incoterms)' : 'Detaylı Emisyon Dökümü (Kapsam 3 & Teslim Şekli)';
+            document.getElementById('lblDetailNote').innerText = isEn ? '*Shipments under buyer-responsible Incoterms (EXW, FCA, FOB etc.) are excluded from calculations.' : '*Teslim şekli EXW, FCA, FOB gibi alıcı sorumluluğundaki yükler hesaplamaya dahil edilmez.';
+            document.getElementById('thDate').innerText = isEn ? 'Date' : 'Tarih';
+            document.getElementById('thImporter').innerText = isEn ? 'Importer' : 'İthalatçı';
+            document.getElementById('thDest').innerText = isEn ? 'Destination' : 'Destinasyon';
+            document.getElementById('thIncoterm').innerText = isEn ? 'Incoterm' : 'Teslim Şekli';
+            document.getElementById('thMode3').innerText = isEn ? 'Mode' : 'Mod';
+            document.getElementById('thDistDetail').innerText = isEn ? 'Distance Detail' : 'Mesafe Detayı';
+            document.getElementById('thWeight').innerText = isEn ? 'Weight (Kg)' : 'Ağırlık (Kg)';
+            document.getElementById('thEmissionVal').innerText = isEn ? 'Emission (kgCO2e)' : 'Emisyon (kgCO2e)';
+            document.getElementById('lblEmeaList').innerText = isEn ? '🇪🇺 Europe (EMEA) Breakdown (Aggregated by Company)' : '🇪🇺 Avrupa (EMEA) Dökümü (Firma Bazlı Toplam)';
+            document.getElementById('lblAmerList').innerText = isEn ? '🇺🇸 Americas (AMER) Breakdown (Aggregated by Company)' : '🇺🇸 Amerika (AMER) Dökümü (Firma Bazlı Toplam)';
+            
+            renderGreenAnalysis(records);
         }
 
         function renderGreenAnalysis(allData) {
@@ -1086,8 +1213,7 @@
             let monthlyEmission = {}; 
             let modeStats = { 'Deniz': {count:0, dist:0, co2:0}, 'Kara': {count:0, dist:0, co2:0}, 'Hava': {count:0, dist:0, co2:0} };
             let transporterStats = {}; 
-            let emeaFirms = {};
-            let amerFirms = {};
+            let emeaFirms = {}; let amerFirms = {};
 
             const tbody = document.getElementById('greenTableBody'); tbody.innerHTML = '';
             const footer = document.getElementById('greenTotalFooter');
@@ -1110,12 +1236,7 @@
                 document.getElementById('amerEmission').innerText = "0.00 t";
                 document.getElementById('emeaAnalysis').innerHTML = currentGreenLang === 'en' ? "No data." : "Veri yok.";
                 document.getElementById('amerAnalysis').innerHTML = currentGreenLang === 'en' ? "No data." : "Veri yok.";
-                
-                if(chartInstanceCO2) {
-                    chartInstanceCO2.data.datasets[0].data = [0, 0, 0];
-                    chartInstanceCO2.update();
-                }
-                
+                if(chartInstanceCO2) { chartInstanceCO2.data.datasets[0].data = [0, 0, 0]; chartInstanceCO2.update(); }
                 aiList.innerHTML = `<div class="italic text-gray-400 p-2">${currentGreenLang === 'en' ? 'No data found for this period.' : 'Bu dönem için hesaplanacak veri bulunamadı.'}</div>`; 
                 return; 
             }
@@ -1136,22 +1257,14 @@
                     let eS = dS * weightTon * EMISSION_FACTORS['Deniz'];
                     let eR = dR * weightTon * EMISSION_FACTORS['Kara'];
                     let eA = dA * weightTon * EMISSION_FACTORS['Hava'];
-                    
                     let shipmentTotalCO2 = eS + eR + eA;
                     let shipmentTonKm = weightTon * totalDist;
 
                     let dest = (r.destCountry || '').toUpperCase();
                     let isAmer = dest.includes('USA') || dest.includes('ABD') || dest.includes('KANADA') || dest.includes('MEKSİKA') || dest.includes('AMERIKA') || dest.includes('UNITED STATES');
                     
-                    if(isAmer) {
-                        regionEmission['AMER'] += shipmentTotalCO2;
-                        if(!amerFirms[r.importer]) amerFirms[r.importer] = 0;
-                        amerFirms[r.importer] += shipmentTotalCO2;
-                    } else {
-                        regionEmission['EMEA'] += shipmentTotalCO2;
-                        if(!emeaFirms[r.importer]) emeaFirms[r.importer] = 0;
-                        emeaFirms[r.importer] += shipmentTotalCO2;
-                    }
+                    if(isAmer) { regionEmission['AMER'] += shipmentTotalCO2; if(!amerFirms[r.importer]) amerFirms[r.importer] = 0; amerFirms[r.importer] += shipmentTotalCO2; } 
+                    else { regionEmission['EMEA'] += shipmentTotalCO2; if(!emeaFirms[r.importer]) emeaFirms[r.importer] = 0; emeaFirms[r.importer] += shipmentTotalCO2; }
 
                     let mKey = r.commInvDate.substring(0, 7);
                     if(!monthlyEmission[mKey]) monthlyEmission[mKey] = { EMEA: 0, AMER: 0 };
@@ -1161,18 +1274,12 @@
                     totalTonKm += shipmentTonKm;
                     
                     modeCO2['Deniz'] += eS; modeCO2['Kara'] += eR; modeCO2['Hava'] += eA;
-                    if(r.type === 'Deniz') modeTonKm['Deniz'] += shipmentTonKm;
-                    else if(r.type === 'Kara') modeTonKm['Kara'] += shipmentTonKm;
-                    else if(r.type === 'Hava') modeTonKm['Hava'] += shipmentTonKm;
-
+                    if(r.type === 'Deniz') modeTonKm['Deniz'] += shipmentTonKm; else if(r.type === 'Kara') modeTonKm['Kara'] += shipmentTonKm; else if(r.type === 'Hava') modeTonKm['Hava'] += shipmentTonKm;
                     if(modeStats[r.type]) { modeStats[r.type].count++; modeStats[r.type].dist += totalDist; modeStats[r.type].co2 += shipmentTotalCO2; }
 
                     let transName = (r.transporter && r.transporter.trim() !== '') ? r.transporter : (currentGreenLang === 'en' ? 'Unknown Carrier' : 'Tanımsız Nakliyeci');
-                    
                     if(!transporterStats[transName]) transporterStats[transName] = { co2: 0, tonKm: 0, modes: new Set() };
-                    transporterStats[transName].co2 += shipmentTotalCO2;
-                    transporterStats[transName].tonKm += shipmentTonKm;
-                    transporterStats[transName].modes.add(r.type);
+                    transporterStats[transName].co2 += shipmentTotalCO2; transporterStats[transName].tonKm += shipmentTonKm; transporterStats[transName].modes.add(r.type);
 
                     let distDetail = []; 
                     if(dS > 0) distDetail.push(`<i class="fa-solid fa-ship text-blue-400"></i> ${dS}`); 
@@ -1180,13 +1287,8 @@
                     if(dA > 0) distDetail.push(`<i class="fa-solid fa-plane text-sky-400"></i> ${dA}`);
 
                     let incotermBadge = r.incoterm ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-300">${r.incoterm}</span>` : '-';
-
                     let displayMode = r.type;
-                    if (currentGreenLang === 'en') {
-                        if (r.type === 'Deniz') displayMode = 'Sea';
-                        else if (r.type === 'Kara') displayMode = 'Road';
-                        else if (r.type === 'Hava') displayMode = 'Air';
-                    }
+                    if (currentGreenLang === 'en') { if (r.type === 'Deniz') displayMode = 'Sea'; else if (r.type === 'Kara') displayMode = 'Road'; else if (r.type === 'Hava') displayMode = 'Air'; }
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-emerald-50/50 border-b border-emerald-50">
@@ -1212,8 +1314,7 @@
             amerFooter.innerHTML = `<tr><td class="py-1 text-right">${totalLabel}</td><td class="py-1 text-right">${regionEmission['AMER'].toLocaleString('tr-TR',{maximumFractionDigits:1})}</td></tr>`;
 
             Object.keys(monthlyEmission).sort().forEach(m => {
-                let d = monthlyEmission[m];
-                let t = d.EMEA + d.AMER;
+                let d = monthlyEmission[m]; let t = d.EMEA + d.AMER;
                 monthlyBody.innerHTML += `<tr><td class="px-4 py-2 text-left font-bold text-slate-700 border-b">${m}</td><td class="px-4 py-2 text-blue-700 border-b">${(d.EMEA/1000).toFixed(2)}</td><td class="px-4 py-2 text-orange-700 border-b">${(d.AMER/1000).toFixed(2)}</td><td class="px-4 py-2 font-bold text-slate-800 border-b">${(t/1000).toFixed(2)}</td></tr>`;
             });
 
@@ -1232,10 +1333,8 @@
             let intensity = totalTonKm > 0 ? (totalCO2 * 1000 / totalTonKm).toFixed(1) : 0;
             document.getElementById('carbonIntensity').innerText = intensity;
             
-            let emeaT = regionEmission['EMEA']/1000;
-            let amerT = regionEmission['AMER']/1000;
+            let emeaT = regionEmission['EMEA']/1000; let amerT = regionEmission['AMER']/1000;
             document.getElementById('emeaEmission').innerText = emeaT.toFixed(2) + " t";
-            
             let emeaMsg = currentGreenLang === 'en' ? "No data." : "Veri yok.";
             if(emeaT > 0) {
                  if(emeaT < 10) emeaMsg = currentGreenLang === 'en' ? "✅ <b>Low Emission:</b> Carbon load is manageable on the Europe line." : "✅ <b>Düşük Emisyon:</b> Avrupa hattında karbon yükü yönetilebilir seviyede.";
@@ -1279,141 +1378,46 @@
             if(seaInt > 0) aiList.innerHTML += `<div class="p-2 bg-indigo-50 border-l-4 border-indigo-500 rounded text-xs mb-2"><b>🚢 ${currentGreenLang === 'en' ? 'Sea Freight' : 'Deniz Yolu'}:</b> ${seaInt}g (${currentGreenLang === 'en' ? 'Target' : 'Hedef'}: <15g).</div>`;
         }
 
-        function renderCharts(monthlyData, typeData) {
-            const ctx1 = document.getElementById('monthlyChart').getContext('2d');
-            if (chartInstance1) chartInstance1.destroy();
-            const allMonths = Object.keys(monthlyData).sort();
-            const last6Months = allMonths.slice(-12);
-            const data1 = last6Months.map(m => monthlyData[m]);
-            chartInstance1 = new Chart(ctx1, { type: 'line', data: { labels: last6Months, datasets: [{ label: 'Komisyon', data: data1, borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#8b5cf6', pointRadius: 5, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false } });
-
-            const ctx2 = document.getElementById('typeChart').getContext('2d');
-            if (chartInstance2) chartInstance2.destroy();
-            chartInstance2 = new Chart(ctx2, { type: 'polarArea', data: { labels: Object.keys(typeData), datasets: [{ data: Object.values(typeData), backgroundColor: ['rgba(59, 130, 246, 0.6)', 'rgba(245, 158, 11, 0.6)', 'rgba(236, 72, 153, 0.6)'], borderColor: ['#3b82f6', '#f59e0b', '#ec4899'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: 'rgba(0,0,0,0.05)' } } } } });
+        // --- SİSTEM AYARLARI ---
+        function applySettings() { 
+            if(appSettings.title) { 
+                document.getElementById('displayTitle').innerText = appSettings.title; 
+                document.getElementById('printTitle').innerText = appSettings.title + " - YÖNETİM RAPORU"; 
+                document.getElementById('greenReportCompany').innerText = appSettings.title; 
+            } 
+            const logoEl = document.getElementById('displayLogo'); const iconEl = document.getElementById('defaultLogoIcon'); const printLogoEl = document.getElementById('printLogo'); const greenLogoEl = document.getElementById('greenReportLogo'); 
+            if (appSettings.logo) { 
+                logoEl.src = appSettings.logo; logoEl.classList.remove('hidden'); iconEl.classList.add('hidden'); printLogoEl.src = appSettings.logo; printLogoEl.classList.remove('hidden'); greenLogoEl.src = appSettings.logo; greenLogoEl.classList.remove('hidden'); 
+            } else { 
+                logoEl.classList.add('hidden'); iconEl.classList.remove('hidden'); printLogoEl.classList.add('hidden'); greenLogoEl.classList.add('hidden'); 
+            } 
         }
-
-        function renderAnalysis(allData) {
-            const currentParity = getActiveParity();
-            let totalCommEUR=0, totalCommUSD=0, unpaidEUR=0, unpaidUSD=0, unbilledEUR=0, unbilledUSD=0;
-            let totalFreightEUR=0, totalFreightUSD=0;
-            let monthlyData={}, monthlyBreakdown={}, typeData={'Deniz':0, 'Kara':0, 'Hava':0}, transporterDebt={};
-            let unbilledList=[], pastDebtList=[], unpaidBreakdownList = [];
-            let pastDebtEUR = 0; let pastDebtUSD = 0;
-
-            allData.forEach(rec => {
-                let cleanCurr = normalizeCurrency(rec.currency);
-                let hasInvoice = rec.commInvNo && rec.commInvNo.trim() !== '';
-                let recYear = rec.commInvDate.substring(0,4);
-                let isCurrentPeriod = recYear === activePeriod;
-                let isPastPeriod = recYear < activePeriod;
-
-                if (hasInvoice && !rec.isPaid) {
-                    let tName = rec.transporter || 'Tanımsız';
-                    if (!transporterDebt[tName]) transporterDebt[tName] = { count: 0, eur: 0, usd: 0 };
-                    transporterDebt[tName].count += 1;
-                    if (cleanCurr === 'EUR') transporterDebt[tName].eur += rec.commission; else transporterDebt[tName].usd += rec.commission;
-                }
-
-                if (isPastPeriod && hasInvoice && !rec.isPaid) {
-                    pastDebtList.push(rec);
-                    if(cleanCurr === 'EUR') pastDebtEUR += rec.commission; else pastDebtUSD += rec.commission;
-                }
-
-                if (isCurrentPeriod) {
-                    if (cleanCurr === 'EUR') {
-                        totalCommEUR += rec.commission; totalFreightEUR += rec.freight;
-                        if (!hasInvoice && !rec.isExempt) unbilledEUR += rec.commission; 
-                        else if (hasInvoice && !rec.isPaid) unpaidEUR += rec.commission;
-                    } else {
-                        totalCommUSD += rec.commission; totalFreightUSD += rec.freight;
-                        if (!hasInvoice && !rec.isExempt) unbilledUSD += rec.commission; 
-                        else if (hasInvoice && !rec.isPaid) unpaidUSD += rec.commission;
-                    }
-                    
-                    if(!hasInvoice && !rec.isExempt) { unbilledList.push(rec); } else if(hasInvoice && !rec.isPaid) { unpaidBreakdownList.push(rec); }
-
-                    let month = rec.commInvDate.substring(0, 7);
-                    if (!monthlyBreakdown[month]) monthlyBreakdown[month] = { fEUR:0, cEUR:0, fUSD:0, cUSD:0 };
-                    if (cleanCurr === 'EUR') { monthlyBreakdown[month].fEUR += rec.freight; monthlyBreakdown[month].cEUR += rec.commission; } 
-                    else { monthlyBreakdown[month].fUSD += rec.freight; monthlyBreakdown[month].cUSD += rec.commission; }
-                    let graphVal = cleanCurr === 'USD' ? rec.commission * (1/currentParity) : rec.commission;
-                    if (!monthlyData[month]) monthlyData[month] = 0; monthlyData[month] += graphVal;
-                    if (typeData[rec.type] !== undefined) typeData[rec.type] += graphVal;
-                }
-            });
-
-            let grandTotal = totalCommUSD + (totalCommEUR * currentParity);
-            document.getElementById('grandTotalUSD').innerText = formatMoney(grandTotal, 'USD');
-
-            let riskEUR = unpaidEUR + pastDebtEUR;
-            let riskUSD = unpaidUSD + pastDebtUSD;
-            let consolidatedRiskUSD = riskUSD + (riskEUR * currentParity);
-
-            document.getElementById('totalRiskEUR').innerText = formatMoney(riskEUR, 'EUR');
-            document.getElementById('totalRiskUSD').innerText = formatMoney(riskUSD, 'USD');
-            document.getElementById('totalRiskConsolidated').innerText = formatMoney(consolidatedRiskUSD, 'USD');
-
-            document.getElementById('kpiTotalCommission').innerHTML = `<div class="flex justify-between border-b pb-1 mb-1"><span class="kpi-label-sm">EUR</span><span class="kpi-value-sm text-indigo-700">${formatMoney(totalCommEUR,'EUR')}</span></div><div class="flex justify-between"><span class="kpi-label-sm">USD</span><span class="kpi-value-sm text-indigo-700">${formatMoney(totalCommUSD,'USD')}</span></div>`;
-            document.getElementById('kpiUnpaid').innerHTML = `<div class="flex justify-between border-b pb-1 mb-1"><span class="kpi-label-sm">EUR</span><span class="kpi-value-sm text-red-600">${formatMoney(unpaidEUR,'EUR')}</span></div><div class="flex justify-between"><span class="kpi-label-sm">USD</span><span class="kpi-value-sm text-red-600">${formatMoney(unpaidUSD,'USD')}</span></div>`;
-            document.getElementById('kpiUnbilled').innerHTML = `<div class="flex justify-between border-b pb-1 mb-1"><span class="kpi-label-sm">EUR</span><span class="kpi-value-sm text-yellow-600">${formatMoney(unbilledEUR,'EUR')}</span></div><div class="flex justify-between"><span class="kpi-label-sm">USD</span><span class="kpi-value-sm text-yellow-600">${formatMoney(unbilledUSD,'USD')}</span></div>`;
-            
-            let totalF = totalFreightEUR + (totalFreightUSD * (1/currentParity)); 
-            let totalC = totalCommEUR + (totalCommUSD * (1/currentParity));
-            document.getElementById('kpiAvgRate').innerText = totalF > 0 ? '%' + ((totalC / totalF) * 100).toFixed(1) : '%0.0';
-
-            const currentYearRecords = allData.filter(r => r.commInvDate.substring(0,4) === activePeriod);
-            generateAdvancedInsights(currentYearRecords, unbilledList.length, grandTotal);
-            renderCharts(monthlyData, typeData);
-            renderMonthlyTable(monthlyBreakdown);
-            renderVatTable(monthlyBreakdown);
-            renderDebtSummary(transporterDebt);
-            renderUnbilledTable(unbilledList);
-            renderPastDebtTable(pastDebtList);
-            renderUnpaidBreakdown(unpaidBreakdownList);
-            renderUnbilledBreakdown(unbilledList);
-        }
-
-        function renderUnpaidBreakdown(list) { const tbody = document.getElementById('unpaidBreakdownBody'); tbody.innerHTML = ''; list.sort((a,b) => b.commission - a.commission); if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-2 text-gray-400 italic">Kayıt yok.</td></tr>'; return; } list.forEach(r => { let cur = normalizeCurrency(r.currency); tbody.innerHTML += `<tr><td class="px-2 py-1 text-slate-700">${r.transporter}</td><td class="px-2 py-1 text-slate-600">${r.importer}</td><td class="px-2 py-1 text-right font-bold text-red-600">${formatMoney(r.commission, cur)}</td></tr>`; }); }
-        function renderUnbilledBreakdown(list) { const tbody = document.getElementById('unbilledBreakdownBody'); tbody.innerHTML = ''; let summary = {}; list.forEach(r => { let cur = normalizeCurrency(r.currency); let key = (r.importer || 'Bilinmiyor') + '||' + (r.transporter || 'Bilinmiyor'); if(!summary[key]) summary[key] = { eur: 0, usd: 0 }; if(cur === 'EUR') summary[key].eur += r.commission; else summary[key].usd += r.commission; }); if(Object.keys(summary).length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-2 text-gray-400 italic">Kayıt yok.</td></tr>'; return; } Object.keys(summary).sort().forEach(key => { let parts = key.split('||'); let d = summary[key]; let valStr = []; if(d.eur > 0) valStr.push(formatMoney(d.eur, 'EUR')); if(d.usd > 0) valStr.push(formatMoney(d.usd, 'USD')); tbody.innerHTML += `<tr><td class="px-2 py-1 font-medium text-slate-700">${parts[0]}</td><td class="px-2 py-1 text-slate-500">${parts[1]}</td><td class="px-2 py-1 text-right font-bold text-yellow-700">${valStr.join(' + ')}</td></tr>`; }); }
-        function renderUnbilledTable(list) { const tbody = document.getElementById('unbilledTableBody'); tbody.innerHTML = ''; list.forEach(rec => { tbody.innerHTML += `<tr class="hover:bg-yellow-50"><td class="px-4 py-2">${rec.commInvDate}</td><td class="px-4 py-2">${rec.importer}</td><td class="px-4 py-2 text-slate-500">${rec.transporter}</td><td class="px-4 py-2 text-right font-bold text-yellow-700">${formatMoney(rec.commission, normalizeCurrency(rec.currency))}</td><td class="px-4 py-2 text-center"><span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-xs font-bold">FATURA KESİLECEK</span></td></tr>`; }); }
-        function renderPastDebtTable(list) { const c = document.getElementById('pastDebtContainer'); const t = document.getElementById('pastDebtTableBody'); if(list.length===0){c.classList.add('hidden');return;} c.classList.remove('hidden'); t.innerHTML=''; let tE=0, tU=0; list.forEach(r => { let cur = normalizeCurrency(r.currency); if(cur==='EUR') tE+=r.commission; else tU+=r.commission; t.innerHTML+=`<tr class="hover:bg-red-50 border-b border-red-100"><td class="px-3 py-2">${r.commInvDate}</td><td class="px-3 py-2 font-bold text-slate-700">${r.importer}</td> <td class="px-3 py-2 text-slate-500">${r.transporter}</td><td class="px-3 py-2">${r.commInvNo}</td><td class="px-3 py-2 text-right font-bold">${formatMoney(r.commission, cur)}</td><td class="px-3 py-2 text-center text-xs font-bold uppercase">Tahsilat Bekliyor</td></tr>`; }); document.getElementById('pastDebtTotalEUR').innerText = formatMoney(tE, 'EUR'); document.getElementById('pastDebtTotalUSD').innerText = formatMoney(tU, 'USD'); }
         
-        function generateAdvancedInsights(currentData, unbilledCount, totalCommBase) {
-            const list = document.getElementById('aiInsightList'); list.innerHTML = ''; 
-            if (currentData.length === 0) { list.innerHTML = '<div class="text-slate-400 italic">Analiz için veri bekleniyor...</div>'; return; }
-            let effScore = (totalCommBase / currentData.length).toFixed(0);
-            list.innerHTML += `<div class="ai-insight-box green-box"><div><i class="fa-solid fa-gauge-high ai-icon"></i><div class="ai-title">Operasyonel Verimlilik</div><div class="ai-text">Dosya başına ortalama kârlılık <b>${effScore} $</b> seviyesinde gerçekleşti.</div></div></div>`;
-            const totalInvoiced = currentData.filter(r => r.commInvNo).length; 
-            const paidInvoiced = currentData.filter(r => r.commInvNo && r.isPaid).length;
-            const collRate = totalInvoiced > 0 ? ((paidInvoiced / totalInvoiced) * 100).toFixed(0) : 0;
-            let collClass = collRate < 50 ? 'red-box' : 'blue-box';
-            list.innerHTML += `<div class="ai-insight-box ${collClass}"><div><i class="fa-solid fa-hand-holding-dollar ai-icon"></i><div class="ai-title">Nakit Akış Performansı</div><div class="ai-text">Kesilen faturaların <b>%${collRate}</b>'i tahsil edildi.</div></div></div>`;
-            const destSet = new Set(currentData.map(r => r.destCountry).filter(Boolean));
-            list.innerHTML += `<div class="ai-insight-box"><div><i class="fa-solid fa-globe ai-icon"></i><div class="ai-title">Pazar Derinliği</div><div class="ai-text">Toplam <b>${destSet.size} farklı ülkeye</b> sevkiyat gerçekleştirerek risk dağıtımı sağladınız.</div></div></div>`;
-            const transCounts = {}; currentData.forEach(r => { let t = r.transporter || 'Diğer'; transCounts[t] = (transCounts[t] || 0) + 1; });
-            const topTrans = Object.entries(transCounts).sort((a,b) => b[1]-a[1])[0];
-            const depRate = ((topTrans[1] / currentData.length) * 100).toFixed(0);
-            list.innerHTML += `<div class="ai-insight-box orange-box"><div><i class="fa-solid fa-handshake ai-icon"></i><div class="ai-title">Tedarikçi Yoğunlaşması</div><div class="ai-text">Operasyonların <b>%${depRate}'i</b> tek bir nakliyeci (${topTrans[0]}) üzerinden yürüyor.</div></div></div>`;
-            if(unbilledCount > 0) { list.innerHTML += `<div class="ai-insight-box red-box"><div><i class="fa-solid fa-bell ai-icon"></i><div class="ai-title">Operasyonel Darboğaz</div><div class="ai-text">Fatura kesilmeyi bekleyen <b>${unbilledCount}</b> adet dosya var. Muhasebeleşme süreci hızlandırılmalı.</div></div></div>`; } else { list.innerHTML += `<div class="ai-insight-box green-box"><div><i class="fa-solid fa-check-circle ai-icon"></i><div class="ai-title">Fatura Disiplini</div><div class="ai-text">Tüm operasyonlar başarıyla faturalandırılmış. Süreç mükemmel işliyor.</div></div></div>`; }
-            const seaCount = currentData.filter(r => r.type === 'Deniz').length;
-            const seaShare = ((seaCount / currentData.length) * 100).toFixed(0);
-            list.innerHTML += `<div class="ai-insight-box blue-box"><div><i class="fa-solid fa-ship ai-icon"></i><div class="ai-title">Mod Tercihi</div><div class="ai-text">İş hacminin <b>%${seaShare}'i</b> denizyolu ile gerçekleşiyor.</div></div></div>`;
-            const monthCounts = {}; currentData.forEach(r => { let m = r.commInvDate.substring(5,7); monthCounts[m] = (monthCounts[m]||0)+1; });
-            const peakMonth = Object.entries(monthCounts).sort((a,b) => b[1]-a[1])[0];
-            const monthNames = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-            list.innerHTML += `<div class="ai-insight-box"><div><i class="fa-solid fa-calendar-check ai-icon"></i><div class="ai-title">Mevsimsellik Pik</div><div class="ai-text">Yılın en yoğun dönemi <b>${monthNames[parseInt(peakMonth[0])]}</b> ayı oldu (${peakMonth[1]} sevkiyat).</div></div></div>`;
-            const eurShare = (currentData.filter(r => normalizeCurrency(r.currency) === 'EUR').length / currentData.length * 100).toFixed(0);
-            list.innerHTML += `<div class="ai-insight-box"><div><i class="fa-solid fa-money-bill-transfer ai-icon"></i><div class="ai-title">Kur Pozisyonu</div><div class="ai-text">Gelirlerin <b>%${eurShare}'i</b> Euro bazlı. Parite dalgalanmalarına karşı hedge stratejisi önerilir.</div></div></div>`;
+        function openSettingsModal() { 
+            document.getElementById('settingsCompanyTitle').value = appSettings.title; 
+            document.getElementById('settingsModal').classList.remove('hidden'); 
         }
-
-        function renderMonthlyTable(data) { const tbody = document.getElementById('monthlyTableBody'); tbody.innerHTML = ''; let t_fEUR = 0, t_cEUR = 0, t_fUSD = 0, t_cUSD = 0; const sortedMonths = Object.keys(data).sort().reverse(); sortedMonths.forEach(m => { let d = data[m]; t_fEUR += d.fEUR; t_cEUR += d.cEUR; t_fUSD += d.fUSD; t_cUSD += d.cUSD; tbody.innerHTML += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="px-2 py-2 font-bold text-slate-700">${m}</td><td class="px-2 py-2 text-right text-slate-600">${formatMoney(d.fEUR, 'EUR')}</td><td class="px-2 py-2 text-right font-semibold text-blue-600 bg-blue-50">${formatMoney(d.cEUR, 'EUR')}</td><td class="px-2 py-2 text-right text-slate-600">${formatMoney(d.fUSD, 'USD')}</td><td class="px-2 py-2 text-right font-semibold text-emerald-600 bg-emerald-50">${formatMoney(d.cUSD, 'USD')}</td></tr>`; }); document.getElementById('mtTotalFreightEUR').innerText = formatMoney(t_fEUR, 'EUR'); document.getElementById('mtTotalCommEUR').innerText = formatMoney(t_cEUR, 'EUR'); document.getElementById('mtTotalFreightUSD').innerText = formatMoney(t_fUSD, 'USD'); document.getElementById('mtTotalCommUSD').innerText = formatMoney(t_cUSD, 'USD'); }
-        function renderVatTable(data) { const tbody = document.getElementById('vatTableBody'); tbody.innerHTML = ''; let t_gEUR = 0, t_vEUR = 0, t_nEUR = 0; let t_gUSD = 0, t_vUSD = 0, t_nUSD = 0; const sortedMonths = Object.keys(data).sort().reverse(); sortedMonths.forEach(m => { let d = data[m]; let gE = d.cEUR, nE = gE / 1.20, vE = gE - nE; let gU = d.cUSD, nU = gU / 1.20, vU = gU - nU; t_gEUR += gE; t_vEUR += vE; t_nEUR += nE; t_gUSD += gU; t_vUSD += vU; t_nUSD += nU; tbody.innerHTML += `<tr class="hover:bg-slate-50 transition border-b border-slate-200"><td class="px-2 py-2 font-bold text-slate-700 border">${m}</td><td class="px-2 py-2 text-right text-slate-600 border">${formatMoney(gE, 'EUR')}</td><td class="px-2 py-2 text-right text-red-500 border font-mono">${formatMoney(vE, 'EUR')}</td><td class="px-2 py-2 text-right font-bold text-blue-700 bg-blue-50 border">${formatMoney(nE, 'EUR')}</td><td class="px-2 py-2 text-right text-slate-600 border">${formatMoney(gU, 'USD')}</td><td class="px-2 py-2 text-right text-red-500 border font-mono">${formatMoney(vU, 'USD')}</td><td class="px-2 py-2 text-right font-bold text-emerald-700 bg-emerald-50 border">${formatMoney(nU, 'USD')}</td></tr>`; }); document.getElementById('vatTotalGrossEUR').innerText = formatMoney(t_gEUR, 'EUR'); document.getElementById('vatTotalVatEUR').innerText = formatMoney(t_vEUR, 'EUR'); document.getElementById('vatTotalNetEUR').innerText = formatMoney(t_nEUR, 'EUR'); document.getElementById('vatTotalGrossUSD').innerText = formatMoney(t_gUSD, 'USD'); document.getElementById('vatTotalVatUSD').innerText = formatMoney(t_vUSD, 'USD'); document.getElementById('vatTotalNetUSD').innerText = formatMoney(t_nUSD, 'USD'); }
-        function renderDebtSummary(data) { const tbody = document.getElementById('debtTableBody'); tbody.innerHTML = ''; let t_EUR = 0, t_USD = 0; const sortedFirms = Object.keys(data).sort(); if(sortedFirms.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">Bekleyen ödeme yok.</td></tr>'; } sortedFirms.forEach(firm => { let d = data[firm]; t_EUR += d.eur; t_USD += d.usd; tbody.innerHTML += `<tr class="hover:bg-red-50 transition border-b border-red-100"><td class="px-4 py-2 font-medium text-slate-700">${firm}</td><td class="px-4 py-2 text-center text-slate-500">${d.count}</td><td class="px-4 py-2 text-right text-slate-700">${d.eur > 0 ? formatMoney(d.eur, 'EUR') : '-'}</td><td class="px-4 py-2 text-right text-slate-700">${d.usd > 0 ? formatMoney(d.usd, 'USD') : '-'}</td></tr>`; }); document.getElementById('debtTotalEUR').innerText = formatMoney(t_EUR, 'EUR'); document.getElementById('debtTotalUSD').innerText = formatMoney(t_USD, 'USD'); }
-        function applySettings() { if(appSettings.title) { document.getElementById('displayTitle').innerText = appSettings.title; document.getElementById('printTitle').innerText = appSettings.title + " - YÖNETİM RAPORU"; document.getElementById('greenReportCompany').innerText = appSettings.title; } const logoEl = document.getElementById('displayLogo'); const iconEl = document.getElementById('defaultLogoIcon'); const printLogoEl = document.getElementById('printLogo'); const greenLogoEl = document.getElementById('greenReportLogo'); if (appSettings.logo) { logoEl.src = appSettings.logo; logoEl.classList.remove('hidden'); iconEl.classList.add('hidden'); printLogoEl.src = appSettings.logo; printLogoEl.classList.remove('hidden'); greenLogoEl.src = appSettings.logo; greenLogoEl.classList.remove('hidden'); } else { logoEl.classList.add('hidden'); iconEl.classList.remove('hidden'); printLogoEl.classList.add('hidden'); greenLogoEl.classList.add('hidden'); } }
-        function openSettingsModal() { document.getElementById('settingsCompanyTitle').value = appSettings.title; document.getElementById('settingsModal').classList.remove('hidden'); }
+        
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-        function saveSettings() { const title = document.getElementById('settingsCompanyTitle').value.trim(); const fileInput = document.getElementById('settingsLogoInput'); if(title) appSettings.title = title; if (fileInput.files && fileInput.files[0]) { const reader = new FileReader(); reader.onload = function(e) { appSettings.logo = e.target.result; syncToCloud(); applySettings(); closeSettingsModal(); }; reader.readAsDataURL(fileInput.files[0]); } else { syncToCloud(); applySettings(); closeSettingsModal(); } }
-        function resetAllData() { if(confirm('DİKKAT! Tüm veriler silinecek. Onaylıyor musunuz?')) { records = []; importers = []; transporters = []; if(currentUserUid) { db.collection("workspaces").doc(currentUserUid).delete(); } localStorage.clear(); location.reload(); } }
+        
+        function saveSettings() { 
+            const title = document.getElementById('settingsCompanyTitle').value.trim(); const fileInput = document.getElementById('settingsLogoInput'); 
+            if(title) appSettings.title = title; 
+            if (fileInput.files && fileInput.files[0]) { 
+                const reader = new FileReader(); reader.onload = function(e) { appSettings.logo = e.target.result; syncToCloud(); applySettings(); closeSettingsModal(); }; reader.readAsDataURL(fileInput.files[0]); 
+            } else { 
+                syncToCloud(); applySettings(); closeSettingsModal(); 
+            } 
+        }
+        
+        function resetAllData() { 
+            if(confirm('DİKKAT! Tüm veriler silinecek. Onaylıyor musunuz?')) { 
+                records = []; importers = []; transporters = []; 
+                if(currentUserUid) { db.collection("workspaces").doc(currentUserUid).delete(); } 
+                localStorage.clear(); location.reload(); 
+            } 
+        }
+        
         function generateId() { return 'id-' + Date.now().toString() + '-' + Math.floor(Math.random() * 1000000); }
         function formatMoney(amount, currency) { const formatter = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); let symbol = '$'; if(currency) { const c = currency.toString().toUpperCase(); if(c.includes('EUR') || c.includes('EURO') || c.includes('AVRO') || c.includes('€')) symbol = '€'; } return formatter.format(amount) + ' ' + symbol; }
         function setLandType(type) { document.getElementById('landType').value = type; const buttons = ['Komple', 'Parsiyel', 'Ekspres', 'Minivan']; buttons.forEach(btn => { const el = document.getElementById('btn-' + btn); if (btn === type) { el.classList.add('active'); el.classList.remove('bg-white', 'text-gray-600'); } else { el.classList.remove('active'); el.classList.add('bg-white', 'text-gray-600'); } }); }
@@ -1428,53 +1432,201 @@
                 commInvDate: document.getElementById('commInvDate').value, commInvNo: document.getElementById('commInvNo').value, loadingDate: document.getElementById('loadingDate').value, exporterInvNo: expInv, importer: document.getElementById('importerSelect').value, transporter: document.getElementById('transporterSelect').value, transporterInvDate: document.getElementById('transporterInvDate').value, transporterInvNo: document.getElementById('transporterInvNo').value, type: document.getElementById('shipmentType').value, vesselName: document.getElementById('vesselName').value, bookingNo: document.getElementById('bookingNo').value, containerNo: document.getElementById('containerNo').value, landType: document.getElementById('landType').value, loadNo: document.getElementById('loadNo').value, voyageNo: document.getElementById('voyageNo').value, currency: document.getElementById('currency').value, freight: parseFloat(document.getElementById('freightAmount').value) || 0, commission: parseFloat(document.getElementById('commissionAmount').value) || 0, exchangeRate: document.getElementById('exchangeRate').value, isPaid: document.getElementById('isPaid').checked, isExempt: document.getElementById('isExempt').checked, weightKg: document.getElementById('weightKg').value, distSea: document.getElementById('distSea').value, distRoad: document.getElementById('distRoad').value, distAir: document.getElementById('distAir').value, destCountry: document.getElementById('destCountry').value, destCity: document.getElementById('destCity').value, incoterm: document.getElementById('incoterm').value 
             }; 
             
-            if (editingRecordId) { const index = records.findIndex(r => r.id == editingRecordId); if (index !== -1) { records[index] = { ...formData, id: editingRecordId }; alert('Güncellendi!'); } editingRecordId = null; resetFormUI(); } else { formData.id = generateId(); records.push(formData); alert('Eklendi!'); } 
-            syncToCloud(); refreshData(); if (!editingRecordId) resetFormFull(); 
+            if (editingRecordId) { 
+                const index = records.findIndex(r => r.id == editingRecordId); 
+                if (index !== -1) { records[index] = { ...formData, id: editingRecordId }; alert('Güncellendi!'); } 
+                editingRecordId = null; resetFormUI(); 
+            } else { 
+                formData.id = generateId(); records.push(formData); alert('Eklendi!'); 
+            } 
+            syncToCloud(); refreshData(); if (!editingRecordId) resetFormFull(); toggleRecordForm();
         }
 
         function resetFormFull() { document.getElementById('logisticsForm').reset(); document.getElementById('commInvDate').valueAsDate = new Date(); document.getElementById('landType').value = ""; ['Komple', 'Parsiyel', 'Ekspres', 'Minivan'].forEach(btn => { document.getElementById('btn-' + btn).classList.remove('active'); document.getElementById('btn-' + btn).classList.add('bg-white', 'text-gray-600'); }); calculateTotals(); toggleFields(); }
-        function editRecord(id) { const rec = records.find(r => r.id == id); if (!rec) return; switchView('main'); document.getElementById('commInvDate').value = rec.commInvDate; document.getElementById('commInvNo').value = rec.commInvNo; document.getElementById('loadingDate').value = rec.loadingDate; document.getElementById('exporterInvNo').value = rec.exporterInvNo; document.getElementById('importerSelect').value = rec.importer; document.getElementById('transporterSelect').value = rec.transporter; document.getElementById('transporterInvDate').value = rec.transporterInvDate; document.getElementById('transporterInvNo').value = rec.transporterInvNo; document.getElementById('shipmentType').value = rec.type; toggleFields(); document.getElementById('vesselName').value = rec.vesselName; document.getElementById('bookingNo').value = rec.bookingNo; document.getElementById('containerNo').value = rec.containerNo; if(rec.type === 'Kara' && rec.landType) setLandType(rec.landType); else { document.getElementById('landType').value = ""; ['Komple', 'Parsiyel', 'Ekspres', 'Minivan'].forEach(btn => { document.getElementById('btn-' + btn).classList.remove('active'); document.getElementById('btn-' + btn).classList.add('bg-white'); }); } document.getElementById('loadNo').value = rec.loadNo; document.getElementById('voyageNo').value = rec.voyageNo; document.getElementById('currency').value = rec.currency; document.getElementById('freightAmount').value = rec.freight; document.getElementById('commissionAmount').value = rec.commission; document.getElementById('exchangeRate').value = rec.exchangeRate; document.getElementById('isPaid').checked = rec.isPaid; document.getElementById('isExempt').checked = rec.isExempt || false; document.getElementById('weightKg').value = rec.weightKg || ''; document.getElementById('distSea').value = rec.distSea || ''; document.getElementById('distRoad').value = rec.distRoad || ''; document.getElementById('distAir').value = rec.distAir || ''; document.getElementById('destCountry').value = rec.destCountry || ''; document.getElementById('destCity').value = rec.destCity || ''; document.getElementById('incoterm').value = rec.incoterm || ''; calculateTotals(); editingRecordId = id; document.getElementById('formHeader').innerHTML = '<i class="fa-solid fa-pen text-orange-500 mr-2"></i> Düzenle'; document.getElementById('saveBtnText').innerText = 'GÜNCELLE'; document.getElementById('saveBtn').classList.replace('bg-slate-800', 'bg-orange-600'); document.getElementById('saveBtn').classList.replace('hover:bg-slate-900', 'hover:bg-orange-700'); document.getElementById('cancelBtn').classList.remove('hidden'); document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' }); }
-        function cancelEdit() { editingRecordId = null; resetFormFull(); resetFormUI(); }
-        function resetFormUI() { document.getElementById('formHeader').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600 mr-2"></i> Yeni Kayıt'; document.getElementById('saveBtnText').innerText = 'KAYDET'; document.getElementById('saveBtn').classList.replace('bg-orange-600', 'bg-slate-800'); document.getElementById('saveBtn').classList.replace('hover:bg-orange-700', 'hover:bg-slate-900'); document.getElementById('cancelBtn').classList.add('hidden'); }
+        function editRecord(id) { const rec = records.find(r => r.id == id); if (!rec) return; switchView('main'); document.getElementById('commInvDate').value = rec.commInvDate; document.getElementById('commInvNo').value = rec.commInvNo; document.getElementById('loadingDate').value = rec.loadingDate; document.getElementById('exporterInvNo').value = rec.exporterInvNo; document.getElementById('importerSelect').value = rec.importer; document.getElementById('transporterSelect').value = rec.transporter; document.getElementById('transporterInvDate').value = rec.transporterInvDate; document.getElementById('transporterInvNo').value = rec.transporterInvNo; document.getElementById('shipmentType').value = rec.type; toggleFields(); document.getElementById('vesselName').value = rec.vesselName; document.getElementById('bookingNo').value = rec.bookingNo; document.getElementById('containerNo').value = rec.containerNo; if(rec.type === 'Kara' && rec.landType) setLandType(rec.landType); else { document.getElementById('landType').value = ""; ['Komple', 'Parsiyel', 'Ekspres', 'Minivan'].forEach(btn => { document.getElementById('btn-' + btn).classList.remove('active'); document.getElementById('btn-' + btn).classList.add('bg-white'); }); } document.getElementById('loadNo').value = rec.loadNo; document.getElementById('voyageNo').value = rec.voyageNo; document.getElementById('currency').value = rec.currency; document.getElementById('freightAmount').value = rec.freight; document.getElementById('commissionAmount').value = rec.commission; document.getElementById('exchangeRate').value = rec.exchangeRate; document.getElementById('isPaid').checked = rec.isPaid; document.getElementById('isExempt').checked = rec.isExempt || false; document.getElementById('weightKg').value = rec.weightKg || ''; document.getElementById('distSea').value = rec.distSea || ''; document.getElementById('distRoad').value = rec.distRoad || ''; document.getElementById('distAir').value = rec.distAir || ''; document.getElementById('destCountry').value = rec.destCountry || ''; document.getElementById('destCity').value = rec.destCity || ''; document.getElementById('incoterm').value = rec.incoterm || ''; calculateTotals(); editingRecordId = id; document.getElementById('formHeader').innerHTML = '<i class="fa-solid fa-pen text-orange-500 mr-2"></i> Düzenle'; document.getElementById('saveBtnText').innerText = 'GÜNCELLE'; document.getElementById('saveBtn').classList.replace('bg-indigo-600', 'bg-orange-600'); document.getElementById('saveBtn').classList.replace('hover:bg-indigo-700', 'hover:bg-orange-700'); toggleRecordForm(true); document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' }); }
+        function cancelEdit() { editingRecordId = null; resetFormFull(); resetFormUI(); toggleRecordForm(); }
+        function resetFormUI() { document.getElementById('formHeader').innerHTML = '<i class="fa-solid fa-pen-to-square text-indigo-600 mr-2"></i>Kayıt Formu'; document.getElementById('saveBtnText').innerText = 'KAYDET'; document.getElementById('saveBtn').classList.replace('bg-orange-600', 'bg-indigo-600'); document.getElementById('saveBtn').classList.replace('hover:bg-orange-700', 'hover:bg-indigo-700'); }
         function deleteRecord(id) { if(confirm('Silinsin mi?')) { if (id == editingRecordId) cancelEdit(); records = records.filter(r => r.id != id); syncToCloud(); refreshData(); } }
         
+        // --- FİRMA VE NAKLİYECİ YÖNETİMİ ---
         function updateDropdowns() {
             const impSel = document.getElementById('importerSelect'); const traSel = document.getElementById('transporterSelect');
             const currentImp = impSel.value; const currentTra = traSel.value;
-            impSel.innerHTML = '<option value="">Seçiniz...</option>'; importers.forEach(i => { const opt = document.createElement('option'); opt.value = i.name; opt.innerText = i.name; impSel.appendChild(opt); }); impSel.value = currentImp;
-            traSel.innerHTML = '<option value="">Seçiniz...</option>'; transporters.forEach(t => { const opt = document.createElement('option'); opt.value = t; opt.innerText = t; traSel.appendChild(opt); }); traSel.value = currentTra;
+            impSel.innerHTML = '<option value="">Seçiniz...</option>'; 
+            importers.forEach(i => { const opt = document.createElement('option'); opt.value = i.name; opt.innerText = i.name; impSel.appendChild(opt); }); 
+            impSel.value = currentImp;
+            
+            traSel.innerHTML = '<option value="">Seçiniz...</option>'; 
+            transporters.forEach(t => { const opt = document.createElement('option'); opt.value = t; opt.innerText = t; traSel.appendChild(opt); }); 
+            traSel.value = currentTra;
         }
 
         function fillImporterDetails() {
             const val = document.getElementById('importerSelect').value; const firm = importers.find(i => i.name === val);
-            if(firm) { if(firm.country) document.getElementById('destCountry').value = firm.country; if(firm.city) document.getElementById('destCity').value = firm.city; if(!document.getElementById('distSea').value && firm.distSea) document.getElementById('distSea').value = firm.distSea; if(!document.getElementById('distRoad').value && firm.distRoad) document.getElementById('distRoad').value = firm.distRoad; if(!document.getElementById('distAir').value && firm.distAir) document.getElementById('distAir').value = firm.distAir; }
+            if(firm) { 
+                if(firm.country) document.getElementById('destCountry').value = firm.country; 
+                if(firm.city) document.getElementById('destCity').value = firm.city; 
+                if(!document.getElementById('distSea').value && firm.distSea) document.getElementById('distSea').value = firm.distSea; 
+                if(!document.getElementById('distRoad').value && firm.distRoad) document.getElementById('distRoad').value = firm.distRoad; 
+                if(!document.getElementById('distAir').value && firm.distAir) document.getElementById('distAir').value = firm.distAir; 
+            }
         }
 
-        function openModal(type) { activeModalType = type; editingFirmOriginalName = null; document.getElementById('modalTitle').innerText = type === 'importer' ? 'Yeni İthalatçı Ekle' : 'Yeni Nakliyeci Ekle'; document.getElementById('newFirmName').value = ''; document.getElementById('newFirmCountry').value = ''; document.getElementById('newFirmCity').value = ''; document.getElementById('newFirmDistSea').value = ''; document.getElementById('newFirmDistRoad').value = ''; document.getElementById('newFirmDistAir').value = ''; if (type === 'importer') { document.getElementById('importerExtraFields').classList.remove('hidden'); } else { document.getElementById('importerExtraFields').classList.add('hidden'); } document.getElementById('firmModal').classList.remove('hidden'); }
+        function openModal(type) { 
+            activeModalType = type; editingFirmOriginalName = null; 
+            document.getElementById('modalTitle').innerText = type === 'importer' ? 'Yeni İthalatçı Ekle' : 'Yeni Nakliyeci Ekle'; 
+            document.getElementById('newFirmName').value = ''; 
+            document.getElementById('newFirmCountry').value = ''; 
+            document.getElementById('newFirmCity').value = ''; 
+            document.getElementById('newFirmDistSea').value = ''; 
+            document.getElementById('newFirmDistRoad').value = ''; 
+            document.getElementById('newFirmDistAir').value = ''; 
+            
+            if (type === 'importer') { 
+                document.getElementById('importerExtraFields').classList.remove('hidden'); 
+            } else { 
+                document.getElementById('importerExtraFields').classList.add('hidden'); 
+            } 
+            document.getElementById('firmModal').classList.remove('hidden'); 
+        }
+        
         function closeModal() { document.getElementById('firmModal').classList.add('hidden'); editingFirmOriginalName = null; }
-        function editFirm(type, name) { activeModalType = type; editingFirmOriginalName = name; document.getElementById('modalTitle').innerText = (type === 'importer' ? 'Firma Düzenle' : 'Nakliyeci Düzenle'); document.getElementById('firmModal').classList.remove('hidden'); if (type === 'importer') { const firm = importers.find(i => i.name === name); if (firm) { document.getElementById('newFirmName').value = firm.name; document.getElementById('newFirmCountry').value = firm.country || ''; document.getElementById('newFirmCity').value = firm.city || ''; document.getElementById('newFirmDistSea').value = firm.distSea || ''; document.getElementById('newFirmDistRoad').value = firm.distRoad || ''; document.getElementById('newFirmDistAir').value = firm.distAir || ''; document.getElementById('importerExtraFields').classList.remove('hidden'); } } else { document.getElementById('newFirmName').value = name; document.getElementById('importerExtraFields').classList.add('hidden'); } }
+        
+        function editFirm(type, name) { 
+            activeModalType = type; editingFirmOriginalName = name; 
+            document.getElementById('modalTitle').innerText = (type === 'importer' ? 'Firma Düzenle' : 'Nakliyeci Düzenle'); 
+            document.getElementById('firmModal').classList.remove('hidden'); 
+            
+            if (type === 'importer') { 
+                const firm = importers.find(i => i.name === name); 
+                if (firm) { 
+                    document.getElementById('newFirmName').value = firm.name; 
+                    document.getElementById('newFirmCountry').value = firm.country || ''; 
+                    document.getElementById('newFirmCity').value = firm.city || ''; 
+                    document.getElementById('newFirmDistSea').value = firm.distSea || ''; 
+                    document.getElementById('newFirmDistRoad').value = firm.distRoad || ''; 
+                    document.getElementById('newFirmDistAir').value = firm.distAir || ''; 
+                    document.getElementById('importerExtraFields').classList.remove('hidden'); 
+                } 
+            } else { 
+                document.getElementById('newFirmName').value = name; 
+                document.getElementById('importerExtraFields').classList.add('hidden'); 
+            } 
+        }
 
         function saveFirm() { 
             const name = document.getElementById('newFirmName').value.trim(); if (!name) return alert('İsim girin.'); 
-            if (editingFirmOriginalName) { if (activeModalType === 'importer') { const firm = importers.find(i => i.name === editingFirmOriginalName); if (firm) { firm.name = name; firm.country = document.getElementById('newFirmCountry').value; firm.city = document.getElementById('newFirmCity').value; firm.distSea = document.getElementById('newFirmDistSea').value; firm.distRoad = document.getElementById('newFirmDistRoad').value; firm.distAir = document.getElementById('newFirmDistAir').value; } } else { const index = transporters.indexOf(editingFirmOriginalName); if (index !== -1) transporters[index] = name; } editingFirmOriginalName = null; } 
-            else { if (activeModalType === 'importer') { if(!importers.some(i => i.name === name)) { importers.push({ name: name, country: document.getElementById('newFirmCountry').value, city: document.getElementById('newFirmCity').value, distSea: document.getElementById('newFirmDistSea').value, distRoad: document.getElementById('newFirmDistRoad').value, distAir: document.getElementById('newFirmDistAir').value }); } else return alert('Bu firma zaten kayıtlı.'); } else { if(!transporters.includes(name)) transporters.push(name); else return alert('Bu nakliyeci zaten kayıtlı.'); } }
+            
+            if (editingFirmOriginalName) { 
+                if (activeModalType === 'importer') { 
+                    const firm = importers.find(i => i.name === editingFirmOriginalName); 
+                    if (firm) { 
+                        firm.name = name; 
+                        firm.country = document.getElementById('newFirmCountry').value; 
+                        firm.city = document.getElementById('newFirmCity').value; 
+                        firm.distSea = document.getElementById('newFirmDistSea').value; 
+                        firm.distRoad = document.getElementById('newFirmDistRoad').value; 
+                        firm.distAir = document.getElementById('newFirmDistAir').value; 
+                    } 
+                } else { 
+                    const index = transporters.indexOf(editingFirmOriginalName); 
+                    if (index !== -1) transporters[index] = name; 
+                } 
+                editingFirmOriginalName = null; 
+            } 
+            else { 
+                if (activeModalType === 'importer') { 
+                    if(!importers.some(i => i.name === name)) { 
+                        importers.push({ 
+                            name: name, 
+                            country: document.getElementById('newFirmCountry').value, 
+                            city: document.getElementById('newFirmCity').value, 
+                            distSea: document.getElementById('newFirmDistSea').value, 
+                            distRoad: document.getElementById('newFirmDistRoad').value, 
+                            distAir: document.getElementById('newFirmDistAir').value 
+                        }); 
+                    } else return alert('Bu firma zaten kayıtlı.'); 
+                } else { 
+                    if(!transporters.includes(name)) transporters.push(name); else return alert('Bu nakliyeci zaten kayıtlı.'); 
+                } 
+            }
             syncToCloud(); updateDropdowns(); renderFirmManager(); closeModal(); 
         }
 
-        function toggleFirmManager() { const el = document.getElementById('firmManagerSection'); el.classList.toggle('hidden'); if(!el.classList.contains('hidden')) renderFirmManager(); }
+        function toggleFirmManager() { 
+            const el = document.getElementById('firmManagerSection'); 
+            el.classList.toggle('hidden'); 
+            if(!el.classList.contains('hidden')) renderFirmManager(); 
+        }
+        
         function renderFirmManager() { 
             const iList = document.getElementById('importerList'); iList.innerHTML = importers.length ? '' : '<div class="p-2 text-gray-400 italic">Kayıt yok.</div>'; 
-            importers.forEach(imp => { iList.innerHTML += `<div class="flex justify-between items-center p-2 border-b last:border-0 hover:bg-slate-100 group"><span class="font-medium text-slate-700">${imp.name}</span><div class="flex gap-2 opacity-100"><button onclick="editFirm('importer', '${imp.name}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1 rounded transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteFirm('importer', '${imp.name}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1 rounded transition"><i class="fa-solid fa-trash-can"></i></button></div></div>`; });
+            importers.forEach(imp => { 
+                iList.innerHTML += `<div class="flex justify-between items-center p-2 border-b last:border-0 hover:bg-slate-100 group"><span class="font-medium text-slate-700">${imp.name}</span><div class="flex gap-2 opacity-100"><button onclick="editFirm('importer', '${imp.name}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1 rounded transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteFirm('importer', '${imp.name}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1 rounded transition"><i class="fa-solid fa-trash-can"></i></button></div></div>`; 
+            });
+            
             const tList = document.getElementById('transporterList'); tList.innerHTML = transporters.length ? '' : '<div class="p-2 text-gray-400 italic">Kayıt yok.</div>'; 
-            transporters.forEach(tra => { tList.innerHTML += `<div class="flex justify-between items-center p-2 border-b last:border-0 hover:bg-slate-100 group"><span class="font-medium text-slate-700">${tra}</span><div class="flex gap-2 opacity-100"><button onclick="editFirm('transporter', '${tra}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1 rounded transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteFirm('transporter', '${tra}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1 rounded transition"><i class="fa-solid fa-trash-can"></i></button></div></div>`; });
+            transporters.forEach(tra => { 
+                tList.innerHTML += `<div class="flex justify-between items-center p-2 border-b last:border-0 hover:bg-slate-100 group"><span class="font-medium text-slate-700">${tra}</span><div class="flex gap-2 opacity-100"><button onclick="editFirm('transporter', '${tra}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1 rounded transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteFirm('transporter', '${tra}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1 rounded transition"><i class="fa-solid fa-trash-can"></i></button></div></div>`; 
+            });
         }
-        function deleteFirm(type, name) { if(confirm(`"${name}" silinecek. Emin misiniz?`)) { if(type === 'importer') importers = importers.filter(i => i.name !== name); else transporters = transporters.filter(t => t !== name); syncToCloud(); renderFirmManager(); updateDropdowns(); } }
         
-        function downloadBackup() { const backupData = { logisticsRecords: records, importers: rawImporters.length > 0 ? rawImporters : importers, transporters: transporters, appSettings: appSettings, periods: periods, activePeriod: activePeriod }; const jsonStr = JSON.stringify(backupData, null, 2); const blob = new Blob([jsonStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; const date = new Date().toISOString().split('T')[0]; a.download = `LojiTrack_Yedek_${date}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
-        function restoreBackup(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); if (!data.logisticsRecords && !data.importers) { alert("Geçersiz yedek dosyası!"); return; } if(confirm("Mevcut verilerin üzerine yedekten geri yükleme yapılacak. Onaylıyor musunuz?")) { if(data.logisticsRecords) records = data.logisticsRecords; if(data.importers) { rawImporters = data.importers; importers = rawImporters.map(i => (typeof i === 'string') ? { name: i, country:'', city:'', distSea:0, distRoad:0, distAir:0 } : i); } if(data.transporters) transporters = data.transporters; if(data.appSettings) appSettings = data.appSettings; if(data.periods) periods = data.periods; if(data.activePeriod) { activePeriod = data.activePeriod; localStorage.setItem('activePeriod', activePeriod); } syncToCloud(); alert("Yedek başarıyla yüklendi! Sayfa yenileniyor..."); location.reload(); } } catch (err) { alert("Dosya okunurken bir hata oluştu: " + err.message); } input.value = ''; }; reader.readAsText(file); }
-        function exportToCSV() { if (records.length === 0) return alert("İndirilecek kayıt yok."); let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; csvContent += "Tarih;Firma;Nakliyeci;Tip;Navlun;Komisyon;Doviz;Durum\n"; records.forEach(r => { const row = [ r.commInvDate, r.importer, r.transporter, r.type, r.freight, r.commission, r.currency, r.isPaid ? 'Ödendi' : 'Bekliyor' ].join(";"); csvContent += row + "\n"; }); const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "LojiTrack_Veri.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
-        function downloadExcelTemplate() { const csvContent = "data:text/csv;charset=utf-8,\uFEFFKomisyon Fat. Tarih;Komisyon Fat. No;İhracatçı Fat. No;İthalatçı;Nakliyeci;Tip;Navlun;Komisyon;Döviz (EUR/USD)\n2025-01-01;F123;EXP001;ABC Ltd;XYZ Lojistik;Deniz;1500;150;USD"; const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "Sablon.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
-        function importFromExcel(input) { const file = input.files[0]; if(!file) return; alert("Excel içe aktarma şu an için sadece CSV formatında desteklenmektedir. Lütfen manuel giriş yapınız veya 'Yedek Yükle'yi kullanınız."); input.value = ''; }
+        function deleteFirm(type, name) { 
+            if(confirm(`"${name}" silinecek. Emin misiniz?`)) { 
+                if(type === 'importer') importers = importers.filter(i => i.name !== name); 
+                else transporters = transporters.filter(t => t !== name); 
+                syncToCloud(); renderFirmManager(); updateDropdowns(); 
+            } 
+        }
+        
+        // --- YEDEKLEME VE EXCEL FONKSİYONLARI ---
+        function downloadBackup() { 
+            const backupData = { logisticsRecords: records, importers: rawImporters.length > 0 ? rawImporters : importers, transporters: transporters, appSettings: appSettings, periods: periods, activePeriod: activePeriod }; 
+            const jsonStr = JSON.stringify(backupData, null, 2); const blob = new Blob([jsonStr], { type: "application/json" }); 
+            const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; const date = new Date().toISOString().split('T')[0]; 
+            a.download = `LojiTrack_Yedek_${date}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); 
+        }
+        
+        function restoreBackup(input) { 
+            const file = input.files[0]; if (!file) return; 
+            const reader = new FileReader(); 
+            reader.onload = function(e) { 
+                try { 
+                    const data = JSON.parse(e.target.result); 
+                    if (!data.logisticsRecords && !data.importers) { alert("Geçersiz yedek dosyası!"); return; } 
+                    if(confirm("Mevcut verilerin üzerine yedekten geri yükleme yapılacak. Onaylıyor musunuz?")) { 
+                        if(data.logisticsRecords) records = data.logisticsRecords; 
+                        if(data.importers) { rawImporters = data.importers; importers = rawImporters.map(i => (typeof i === 'string') ? { name: i, country:'', city:'', distSea:0, distRoad:0, distAir:0 } : i); } 
+                        if(data.transporters) transporters = data.transporters; 
+                        if(data.appSettings) appSettings = data.appSettings; 
+                        if(data.periods) periods = data.periods; 
+                        if(data.activePeriod) { activePeriod = data.activePeriod; localStorage.setItem('activePeriod', activePeriod); } 
+                        syncToCloud(); alert("Yedek başarıyla yüklendi! Sayfa yenileniyor..."); location.reload(); 
+                    } 
+                } catch (err) { alert("Dosya okunurken bir hata oluştu: " + err.message); } 
+                input.value = ''; 
+            }; reader.readAsText(file); 
+        }
+        
+        function exportToCSV() { 
+            if (records.length === 0) return alert("İndirilecek kayıt yok."); 
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; csvContent += "Tarih;Firma;Nakliyeci;Tip;Navlun;Komisyon;Doviz;Durum\n"; 
+            records.forEach(r => { const row = [ r.commInvDate, r.importer, r.transporter, r.type, r.freight, r.commission, r.currency, r.isPaid ? 'Ödendi' : 'Bekliyor' ].join(";"); csvContent += row + "\n"; }); 
+            const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "LojiTrack_Veri.csv"); 
+            document.body.appendChild(link); link.click(); document.body.removeChild(link); 
+        }
+        
+        function downloadExcelTemplate() { 
+            const csvContent = "data:text/csv;charset=utf-8,\uFEFFKomisyon Fat. Tarih;Komisyon Fat. No;İhracatçı Fat. No;İthalatçı;Nakliyeci;Tip;Navlun;Komisyon;Döviz (EUR/USD)\n2025-01-01;F123;EXP001;ABC Ltd;XYZ Lojistik;Deniz;1500;150;USD"; 
+            const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "Sablon.csv"); 
+            document.body.appendChild(link); link.click(); document.body.removeChild(link); 
+        }
+        
+        function importFromExcel(input) { 
+            const file = input.files[0]; if(!file) return; 
+            alert("Excel içe aktarma şu an için sadece CSV formatında desteklenmektedir. Lütfen manuel giriş yapınız veya 'Yedek Yükle'yi kullanınız."); 
+            input.value = ''; 
+        }
     </script>
 </body>
 </html>
