@@ -170,7 +170,7 @@
                     <button onclick="switchView('green')" id="btnGreenView" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm transition border border-emerald-500 shadow-lg shadow-emerald-500/30 flex items-center gap-2"><i class="fa-solid fa-leaf"></i> Yeşil Lojistik</button>
                     <div class="w-px h-6 bg-slate-700 mx-2 hidden md:block"></div>
                     <div class="flex gap-1 items-center">
-                        <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1" title="Excel'e Aktar"><i class="fa-solid fa-file-csv"></i> İndir</button>
+                        <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1 shadow-md" title="Gelişmiş Excel Raporu İndir"><i class="fa-solid fa-file-excel"></i> Excel İndir</button>
                         <button onclick="document.getElementById('backupInput').click()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1" title="Sisteme Yedek Yükle"><i class="fa-solid fa-upload"></i> Yedek Yükle</button>
                         <button onclick="downloadBackup()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-xs transition text-white flex items-center gap-1" title="Mevcut Veriyi İndir"><i class="fa-solid fa-download"></i> Yedek Al</button>
                         <button onclick="window.print()" class="bg-slate-600 hover:bg-slate-500 p-2 rounded text-xs transition text-white" title="Yazdır (PDF)"><i class="fa-solid fa-print"></i></button>
@@ -1511,18 +1511,75 @@
             }; reader.readAsText(file); 
         }
         
-        function exportToCSV() { 
-            if (records.length === 0) return alert("İndirilecek kayıt yok."); 
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; csvContent += "Tarih;Firma;Nakliyeci;Tip;Navlun;Komisyon;Doviz;Durum\n"; 
-            records.forEach(r => { const row = [ r.commInvDate, r.importer, r.transporter, r.type, r.freight, r.commission, r.currency, r.isPaid ? 'Ödendi' : 'Bekliyor' ].join(";"); csvContent += row + "\n"; }); 
-            const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "LojiTrack_Veri.csv"); 
-            document.body.appendChild(link); link.click(); document.body.removeChild(link); 
-        }
-        
-        function downloadExcelTemplate() { 
-            const csvContent = "data:text/csv;charset=utf-8,\uFEFFKomisyon Fat. Tarih;Komisyon Fat. No;İhracatçı Fat. No;İthalatçı;Nakliyeci;Tip;Navlun;Komisyon;Döviz (EUR/USD)\n2025-01-01;F123;EXP001;ABC Ltd;XYZ Lojistik;Deniz;1500;150;USD"; 
-            const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "Sablon.csv"); 
-            document.body.appendChild(link); link.click(); document.body.removeChild(link); 
+        // GELİŞMİŞ EXCEL DIŞA AKTARMA MODÜLÜ (.XLSX)
+        function exportToExcel() { 
+            if (records.length === 0) return alert("İndirilecek herhangi bir kayıt bulunamadı."); 
+
+            // SAYFA 1: FİNANSAL VE OPERASYONEL VERİLER
+            const financialData = records.map(r => ({
+                "Fatura Tarihi": r.commInvDate,
+                "İthalatçı Firma": r.importer || "-",
+                "Nakliyeci Firma": r.transporter || "-",
+                "Taşıma Türü": r.type || "-",
+                "Teslim Şekli": r.incoterm || "-",
+                "Varış Ülkesi": r.destCountry || "-",
+                "Navlun Bedeli": parseFloat(r.freight) || 0,
+                "Komisyon Geliri": parseFloat(r.commission) || 0,
+                "Döviz Cinsi": r.currency || "USD",
+                "Kur (TL)": parseFloat(r.exchangeRate) || 0,
+                "Komisyon (TL)": (parseFloat(r.commission) || 0) * (parseFloat(r.exchangeRate) || 0),
+                "Tahsilat Durumu": r.isPaid ? "ÖDENDİ" : "BEKLİYOR",
+                "Fatura Durumu": r.commInvNo ? `KESİLDİ (${r.commInvNo})` : "FATURALANACAK"
+            }));
+
+            // SAYFA 2: YEŞİL LOJİSTİK VE EMİSYON VERİLERİ (Kapsam 3)
+            const greenData = records.map(r => {
+                let weightTon = (parseFloat(r.weightKg) || 0) / 1000;
+                let dS = parseFloat(r.distSea) || 0; let dR = parseFloat(r.distRoad) || 0; let dA = parseFloat(r.distAir) || 0;
+                let isExcluded = BUYER_RESPONSIBLE_INCOTERMS.includes(r.incoterm) ? "EVET (Hesap Dışı)" : "HAYIR";
+                
+                let emission = 0;
+                if (!BUYER_RESPONSIBLE_INCOTERMS.includes(r.incoterm) && weightTon > 0) {
+                    emission = (dS * weightTon * EMISSION_FACTORS['Deniz']) + 
+                               (dR * weightTon * EMISSION_FACTORS['Kara']) + 
+                               (dA * weightTon * EMISSION_FACTORS['Hava']);
+                }
+
+                return {
+                    "Tarih": r.commInvDate,
+                    "İthalatçı": r.importer || "-",
+                    "Destinasyon": r.destCountry || "-",
+                    "Teslim Şekli": r.incoterm || "-",
+                    "Kapsam Dışı mı?": isExcluded,
+                    "Ağırlık (KG)": parseFloat(r.weightKg) || 0,
+                    "Deniz (Km)": dS,
+                    "Kara (Km)": dR,
+                    "Hava (Km)": dA,
+                    "Tahmini CO2 Salınımı (kgCO2e)": emission > 0 ? parseFloat(emission.toFixed(2)) : 0
+                };
+            });
+
+            // Yeni bir Excel Çalışma Kitabı (Workbook) oluştur
+            const wb = XLSX.utils.book_new();
+            
+            // JSON verilerini Excel Sayfalarına (Worksheet) çevir
+            const wsFin = XLSX.utils.json_to_sheet(financialData);
+            const wsGreen = XLSX.utils.json_to_sheet(greenData);
+
+            // Sütun genişliklerini ayarlama (Okunabilirliği artırır)
+            const wscolsFin = [ {wch:12}, {wch:25}, {wch:25}, {wch:12}, {wch:12}, {wch:15}, {wch:15}, {wch:15}, {wch:10}, {wch:10}, {wch:15}, {wch:15}, {wch:22} ];
+            wsFin['!cols'] = wscolsFin;
+            
+            const wscolsGreen = [ {wch:12}, {wch:25}, {wch:15}, {wch:12}, {wch:18}, {wch:12}, {wch:10}, {wch:10}, {wch:10}, {wch:25} ];
+            wsGreen['!cols'] = wscolsGreen;
+
+            // Sayfaları Çalışma Kitabına ekle
+            XLSX.utils.book_append_sheet(wb, wsFin, "Finansal Kayıtlar");
+            XLSX.utils.book_append_sheet(wb, wsGreen, "Yeşil Lojistik (CO2)");
+
+            // Dosyayı isimlendir ve indir (.xlsx formatında)
+            const dateStr = new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
+            XLSX.writeFile(wb, `LojiTrack_Rapor_${dateStr}.xlsx`);
         }
         
         function importFromExcel(input) { 
