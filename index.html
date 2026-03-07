@@ -51,67 +51,84 @@
         .progress-bg { background-color: #f1f5f9; border-radius: 999px; height: 8px; width: 100%; overflow: hidden; margin-top: 4px; }
         .progress-bar { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); height: 100%; border-radius: 999px; transition: width 0.5s ease; }
 
-      @media print {
+     @media print {
+            /* 1. SAYFA YAPISI */
             @page { size: A4 portrait; margin: 10mm; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
             body { background-color: white !important; font-size: 8pt; margin: 0; padding: 0; }
             
+            /* GEREKSİZLERİ GİZLEME */
             #loginScreen, .no-print, nav, #searchInput, .glass-panel.mb-6:first-of-type, #yearFilterContainer, #formSection, #btnMainView, #btnAnalysisView, #btnGreenView { display: none !important; }
             .hidden { display: none !important; }
-            
             .print-only { display: block !important; }
             #mainDashboard:has(#greenView:not(.hidden)) .print-only { display: none !important; }
             
-            /* BOŞLUK (PAGE-BREAK) DÜZELTMESİ: Koca sayfa boşluklarını engeller */
+            /* 2. BOYUTLANDIRMA VE BOŞLUK DÜZELTMESİ (Esnekliği Sabitledik) */
             .glass-panel, .card, .bg-white, .ai-insight-box { 
                 border: 1px solid #cbd5e1 !important; 
                 box-shadow: none !important; 
                 margin-bottom: 12px !important; 
                 padding: 10px !important; 
-                page-break-inside: auto !important; /* avoid yerine auto yapıldı */
+                page-break-inside: auto !important; 
                 break-inside: auto !important; 
             }
             .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 12px !important; }
             
-            div[style*="height:250px"] { height: 120px !important; }
-            canvas { max-height: 120px !important; max-width: 150px !important; width: auto !important; height: auto !important; margin: 0 auto !important; }
+            div[style*="height:250px"] { height: 140px !important; }
+            canvas { max-height: 140px !important; max-width: 100% !important; width: auto !important; height: auto !important; margin: 0 auto !important; }
 
-            .grid { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
-            .grid > div { flex: 1 1 0% !important; min-width: 0 !important; }
-            .md\:grid-cols-2 > div { flex-basis: calc(50% - 10px) !important; }
-            .md\:grid-cols-3 > div, .lg\:grid-cols-3 > div { flex-basis: calc(33.333% - 10px) !important; }
-            .md\:grid-cols-4 > div { flex-basis: calc(50% - 10px) !important; }
+            /* 3. TABLO VE KUTU DİZİLİMLERİ (Grid ile milimetrik sabitlendi) */
+            .grid { display: grid !important; gap: 10px !important; }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+            .md\:grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } /* Dikey kağıtta 4 yerine 2 sütun daha iyi durur */
+            .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 
+            /* FONTLAR */
             h1 { font-size: 14pt !important; } h2 { font-size: 12pt !important; margin-bottom: 4px !important; } h3 { font-size: 10pt !important; margin-bottom: 4px !important; }
             .text-5xl { font-size: 18pt !important; } .text-4xl { font-size: 16pt !important; } .text-3xl { font-size: 14pt !important; }
             p, div { font-size: 7.5pt !important; line-height: 1.3 !important; }
 
-            /* LOGO VE ÜNVAN GARANTİSİ (KESİN ÇÖZÜM) */
+            /* 4. LOGO VE ÜNVANIN KESİN GÖRÜNMESİ (Tüm şeffaflık ve katmanlar iptal edildi) */
             .green-gradient { 
                 background: none !important; background-color: #f0fdf4 !important; border: 2px solid #10b981 !important; 
-                padding: 15px !important; overflow: visible !important; 
+                padding: 15px !important; overflow: visible !important; position: static !important;
             }
             .green-gradient .fa-tree { display: none !important; }
-            .green-gradient > div:first-child, .green-gradient .z-20 { 
+            
+            /* Başlık Bloğunun Zırhı */
+            #greenView .green-gradient > div.z-20 { 
                 display: flex !important; align-items: center !important; 
                 border-bottom: 2px solid #a7f3d0 !important; padding-bottom: 10px !important; margin-bottom: 10px !important; 
-                visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 999 !important;
+                opacity: 1 !important; visibility: visible !important; position: static !important;
             }
+            
+            /* Logoyu Görünür Kılma */
             #greenReportLogo { 
-                display: inline-block !important; max-height: 55px !important; width: auto !important; 
-                visibility: visible !important; opacity: 1 !important; 
+                display: block !important; max-height: 60px !important; width: auto !important; 
+                opacity: 1 !important; visibility: visible !important; 
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
             }
-            #greenReportLogo[src=""], #greenReportLogo.hidden { display: none !important; }
+            #greenReportLogo[src=""] { display: none !important; }
             
+            /* Ünvanı Görünür Kılma */
             #greenReportCompany { 
-                font-size: 16pt !important; font-weight: 900 !important; 
-                color: #064e3b !important; /* Beyaz yazıyı zorla yeşil yapar */
-                display: block !important; visibility: visible !important; 
+                font-size: 18pt !important; font-weight: 900 !important; 
+                color: #064e3b !important; display: block !important; opacity: 1 !important; visibility: visible !important; 
             }
-            #greenReportCompany + div { color: #059669 !important; font-weight: 700 !important; } /* Alt başlık rengi */
             
-            .green-gradient * { color: #064e3b !important; border-color: #a7f3d0 !important; }
+            /* Diğer beyaz metinleri zorla yeşil yapma */
+            .green-gradient .text-white, .green-gradient .text-emerald-100 { color: #064e3b !important; opacity: 1 !important; font-weight: bold !important; }
             .green-gradient h2, .green-gradient .text-5xl { color: #064e3b !important; font-weight: bold !important; }
+            .green-gradient * { border-color: #a7f3d0 !important; }
+
+            /* TABLOLAR */
+            table { width: 100% !important; border-collapse: collapse; font-size: 7.5pt !important; table-layout: auto !important; }
+            th, td { border: 1px solid #cbd5e1 !important; padding: 4px 5px !important; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid !important; }
+            #greenDetailTable { font-size: 6.5pt !important; }
         }
     </style>
 </head>
