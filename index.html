@@ -86,30 +86,32 @@
             .text-5xl { font-size: 18pt !important; } .text-4xl { font-size: 16pt !important; } .text-3xl { font-size: 14pt !important; }
             p, div { font-size: 7.5pt !important; line-height: 1.3 !important; }
 
-            /* LOGO VE ÜNVAN GARANTİSİ */
+            /* LOGO VE ÜNVAN GARANTİSİ (KESİN ÇÖZÜM) */
             .green-gradient { 
                 background: none !important; background-color: #f0fdf4 !important; border: 2px solid #10b981 !important; 
-                padding: 15px !important; overflow: visible !important; /* Gizlenmeyi engeller */
+                padding: 15px !important; overflow: visible !important; 
             }
             .green-gradient .fa-tree { display: none !important; }
-            .green-gradient > .flex.items-center.gap-4 { 
+            .green-gradient > div:first-child, .green-gradient .z-20 { 
                 display: flex !important; align-items: center !important; 
                 border-bottom: 2px solid #a7f3d0 !important; padding-bottom: 10px !important; margin-bottom: 10px !important; 
+                visibility: visible !important; opacity: 1 !important; position: relative !important; z-index: 999 !important;
             }
-            #greenReportLogo { display: block !important; max-height: 55px !important; width: auto !important; visibility: visible !important; opacity: 1 !important; z-index: 9999 !important; }
-            #greenReportLogo.hidden { display: none !important; }
-            #greenReportCompany { font-size: 16pt !important; font-weight: 800 !important; color: #064e3b !important; display: block !important; visibility: visible !important; }
-            .green-gradient .text-emerald-100 { color: #059669 !important; font-weight: 700 !important; }
+            #greenReportLogo { 
+                display: inline-block !important; max-height: 55px !important; width: auto !important; 
+                visibility: visible !important; opacity: 1 !important; 
+            }
+            #greenReportLogo[src=""], #greenReportLogo.hidden { display: none !important; }
+            
+            #greenReportCompany { 
+                font-size: 16pt !important; font-weight: 900 !important; 
+                color: #064e3b !important; /* Beyaz yazıyı zorla yeşil yapar */
+                display: block !important; visibility: visible !important; 
+            }
+            #greenReportCompany + div { color: #059669 !important; font-weight: 700 !important; } /* Alt başlık rengi */
+            
             .green-gradient * { color: #064e3b !important; border-color: #a7f3d0 !important; }
             .green-gradient h2, .green-gradient .text-5xl { color: #064e3b !important; font-weight: bold !important; }
-
-            img { max-width: 100% !important; display: inline-block !important; }
-            img.hidden { display: none !important; }
-            table { width: 100% !important; border-collapse: collapse; font-size: 7.5pt !important; table-layout: auto !important; }
-            th, td { border: 1px solid #cbd5e1 !important; padding: 4px 5px !important; }
-            thead { display: table-header-group; }
-            tr { page-break-inside: avoid !important; }
-            #greenDetailTable { font-size: 6.5pt !important; }
         }
     </style>
 </head>
@@ -1184,7 +1186,7 @@
         function renderPastDebtTable(list) { const c = document.getElementById('pastDebtContainer'); const t = document.getElementById('pastDebtTableBody'); if(list.length===0){c.classList.add('hidden');return;} c.classList.remove('hidden'); t.innerHTML=''; let tE=0, tU=0; list.forEach(r => { let cur = normalizeCurrency(r.currency); if(cur==='EUR') tE+=r.commission; else tU+=r.commission; t.innerHTML+=`<tr class="hover:bg-red-50 border-b border-red-100"><td class="px-3 py-2">${r.commInvDate}</td><td class="px-3 py-2 font-bold text-slate-700">${r.importer}</td> <td class="px-3 py-2 text-slate-500">${r.transporter}</td><td class="px-3 py-2">${r.commInvNo}</td><td class="px-3 py-2 text-right font-bold">${formatMoney(r.commission, cur)}</td><td class="px-3 py-2 text-center text-xs font-bold uppercase">Tahsilat Bekliyor</td></tr>`; }); document.getElementById('pastDebtTotalEUR').innerText = formatMoney(tE, 'EUR'); document.getElementById('pastDebtTotalUSD').innerText = formatMoney(tU, 'USD'); }
         
         // YEŞİL LOJİSTİK
-        function toggleGreenLanguage() {
+       function toggleGreenLanguage() {
             currentGreenLang = currentGreenLang === 'tr' ? 'en' : 'tr';
             const isEn = currentGreenLang === 'en';
             document.getElementById('langBtnText').innerText = isEn ? '🇹🇷 Türkçe Rapor' : '🇬🇧 English Report';
@@ -1227,15 +1229,12 @@
             document.getElementById('thEmissionVal').innerText = isEn ? 'Emission (kgCO2e)' : 'Emisyon (kgCO2e)';
             document.getElementById('lblEmeaList').innerText = isEn ? '🇪🇺 Europe (EMEA) Breakdown (Aggregated by Company)' : '🇪🇺 Avrupa (EMEA) Dökümü (Firma Bazlı Toplam)';
             document.getElementById('lblAmerList').innerText = isEn ? '🇺🇸 Americas (AMER) Breakdown (Aggregated by Company)' : '🇺🇸 Amerika (AMER) Dökümü (Firma Bazlı Toplam)';
-            document.getElementById('mapEmeaVal').innerText = emeaT.toFixed(1) + " t";
-            document.getElementById('mapAmerVal').innerText = amerT.toFixed(1) + " t";
             document.getElementById('disclaimer1').innerHTML = isEn ? 'Our carbon emission reports generated via LojiTrack are based on the <b>GLEC Framework (Global Logistics Emissions Council)</b> methodology, the global standard for logistics emissions.' : 'LojiTrack üzerinden sunulan karbon emisyon raporları, lojistik sektörü için küresel geçerliliği olan <b>GLEC Framework (Global Logistics Emissions Council)</b> metodolojisi baz alınarak hazırlanmıştır.';
             document.getElementById('disclaimer2').innerHTML = isEn ? 'The calculations are aligned with <b>ISO 14083</b> and cover <b>Scope 3</b> emissions.' : 'Hesaplamalarımız <b>ISO 14083</b> standardı ile uyumlu olup, <b>Kapsam 3 (Scope 3)</b> emisyonlarını içerir.';
             document.getElementById('disclaimer3').innerHTML = isEn ? 'We utilize <b>WTW (Well-to-Wheel)</b> emission factors. Shipments under buyer-responsible Incoterms (EXW, FCA, etc.) are excluded.' : 'Kullanılan emisyon faktörleri, <b>WTW (Well-to-Wheel)</b> prensibine dayanır. Alıcının sorumluluğunda olan Incoterms kapsamındaki gönderiler hariç tutulmuştur.';
             document.getElementById('lblWorldMap').innerHTML = isEn ? '<i class="fa-solid fa-map-location-dot text-emerald-600 mr-2"></i>Global Emission Heatmap' : '<i class="fa-solid fa-map-location-dot text-emerald-600 mr-2"></i>Küresel Emisyon Isı Haritası (Heatmap)';
             renderGreenAnalysis(records);
         }
-
         function renderGreenAnalysis(allData) {
             let totalCO2 = 0; let totalTonKm = 0;
             let modeCO2 = { 'Deniz': 0, 'Kara': 0, 'Hava': 0 };
@@ -1344,7 +1343,9 @@
                 }
             }
             document.getElementById('amerAnalysis').innerHTML = amerMsg;
-
+// HARİTA DEĞERLERİNİ GÜNCELLE (DÜZELTİLDİ)
+            document.getElementById('mapEmeaVal').innerText = emeaT.toFixed(1) + " t";
+            document.getElementById('mapAmerVal').innerText = amerT.toFixed(1) + " t";
             Object.keys(transporterStats).forEach(t => {
                 let d = transporterStats[t]; let scoreInt = d.tonKm > 0 ? (d.co2 * 1000 / d.tonKm) : 0; let grade = '';
                 if(scoreInt < 15) grade = '<span class="score-a">A+</span>'; else if(scoreInt < 50) grade = '<span class="score-b">B</span>'; else grade = '<span class="score-c">C</span>';
