@@ -59,8 +59,11 @@
             
             /* Gereksiz Arayüz Elemanlarını Gizleme */
             #loginScreen, .no-print, nav, #searchInput, .glass-panel.mb-6:first-of-type, #yearFilterContainer, #formSection, #btnMainView, #btnAnalysisView, #btnGreenView { display: none !important; }
-            .print-only { display: block !important; }
             .hidden { display: none !important; }
+            
+            /* SADECE LİSTE EKRANINDA "YÖNETİM RAPORU" BAŞLIĞINI GÖSTER (Yeşil raporda çift başlık olmasını önler) */
+            .print-only { display: block !important; }
+            #mainDashboard:has(#greenView:not(.hidden)) .print-only { display: none !important; }
             
             /* Kutu ve Boşluk Düzeltmeleri */
             .glass-panel, .card, .bg-white, .ai-insight-box { 
@@ -88,7 +91,6 @@
             .grid > div { flex: 1 1 0% !important; min-width: 0 !important; }
             .md\:grid-cols-2 > div { flex-basis: calc(50% - 10px) !important; }
             .md\:grid-cols-3 > div, .lg\:grid-cols-3 > div { flex-basis: calc(33.333% - 10px) !important; }
-            /* Dikeyde 4 sütun dar olur, bu yüzden kağıtta 2 sütuna düşürülüyor */
             .md\:grid-cols-4 > div { flex-basis: calc(50% - 10px) !important; }
 
             /* Başlık ve Font Boyutları */
@@ -100,31 +102,52 @@
             .text-3xl { font-size: 14pt !important; }
             p, div { font-size: 7.5pt !important; line-height: 1.3 !important; }
 
-            /* GARANTİLİ GÖRÜNÜRLÜK: Yazıcı Dostu Arka Planlar (Mürekkep Tasarrufu) */
+            /* ==========================================
+               YEŞİL LOJİSTİK BAŞLIK VE LOGO GARANTİSİ
+               ========================================== */
             .green-gradient { 
                 background: none !important; 
                 background-color: #f0fdf4 !important; 
                 border: 2px solid #10b981 !important; 
-                color: #064e3b !important; 
-                padding: 12px !important; 
+                padding: 15px !important; 
+                position: static !important; /* Tarayıcı bug'ını önler */
             }
+            
+            /* Arka plandaki dev ağacı yazdırırken SİL (Logonun üstünü kapatmasını engeller) */
+            .green-gradient .fa-tree { display: none !important; }
+            
+            /* Başlık Flex Kutusunu Sabitleme */
+            .green-gradient > .flex.items-center.gap-4 { 
+                display: flex !important; 
+                align-items: center !important; 
+                border-bottom: 2px solid #a7f3d0 !important; 
+                padding-bottom: 10px !important; 
+                margin-bottom: 10px !important; 
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Logonun Garantili Çıktısı */
+            #greenReportLogo { 
+                display: block !important; 
+                max-height: 55px !important; 
+                width: auto !important; 
+                background-color: transparent !important; 
+                box-shadow: none !important;
+            }
+            #greenReportLogo.hidden { display: none !important; }
+            
+            /* Firma Ünvanı ve Alt Yazının Garantili Çıktısı */
+            #greenReportCompany { font-size: 16pt !important; font-weight: 800 !important; color: #064e3b !important; display: block !important; visibility: visible !important; opacity: 1 !important; margin-bottom: 2px !important; }
+            .green-gradient .text-emerald-100 { color: #059669 !important; font-weight: 700 !important; opacity: 1 !important; }
+            
+            /* Diğer tüm yazıların renk değişimi */
             .green-gradient * { color: #064e3b !important; border-color: #a7f3d0 !important; }
-            .green-gradient h1, .green-gradient h2, .green-gradient .text-5xl { color: #064e3b !important; font-weight: bold !important; }
-            
-            .hero-gradient { 
-                background: none !important; 
-                background-color: #f8fafc !important; 
-                border: 2px solid #3b82f6 !important; 
-                color: #0f172a !important; 
-                padding: 12px !important; 
-            }
-            .hero-gradient * { color: #0f172a !important; border-color: #cbd5e1 !important; }
-            
-            /* Logo Düzeltmeleri */
+            .green-gradient h2, .green-gradient .text-5xl { color: #064e3b !important; font-weight: bold !important; }
+
+            /* Logo ve Tablo Düzeltmeleri */
             img { max-width: 100% !important; page-break-inside: avoid; display: block !important; }
             img.hidden { display: none !important; }
-            
-            /* Tablo Düzeltmeleri */
             table { width: 100% !important; border-collapse: collapse; font-size: 7.5pt !important; table-layout: auto !important; }
             th, td { border: 1px solid #cbd5e1 !important; padding: 4px 5px !important; }
             thead { display: table-header-group; }
