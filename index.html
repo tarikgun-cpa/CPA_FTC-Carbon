@@ -51,107 +51,64 @@
         .progress-bg { background-color: #f1f5f9; border-radius: 999px; height: 8px; width: 100%; overflow: hidden; margin-top: 4px; }
         .progress-bar { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); height: 100%; border-radius: 999px; transition: width 0.5s ease; }
 
-       @media print {
-            /* 1. Sayfa Yapısı - Dikey (Portrait) */
+      @media print {
             @page { size: A4 portrait; margin: 10mm; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
             body { background-color: white !important; font-size: 8pt; margin: 0; padding: 0; }
             
-            /* Gereksiz Arayüz Elemanlarını Gizleme */
             #loginScreen, .no-print, nav, #searchInput, .glass-panel.mb-6:first-of-type, #yearFilterContainer, #formSection, #btnMainView, #btnAnalysisView, #btnGreenView { display: none !important; }
             .hidden { display: none !important; }
             
-            /* SADECE LİSTE EKRANINDA "YÖNETİM RAPORU" BAŞLIĞINI GÖSTER (Yeşil raporda çift başlık olmasını önler) */
             .print-only { display: block !important; }
             #mainDashboard:has(#greenView:not(.hidden)) .print-only { display: none !important; }
             
-            /* Kutu ve Boşluk Düzeltmeleri */
+            /* BOŞLUK (PAGE-BREAK) DÜZELTMESİ: Koca sayfa boşluklarını engeller */
             .glass-panel, .card, .bg-white, .ai-insight-box { 
                 border: 1px solid #cbd5e1 !important; 
                 box-shadow: none !important; 
                 margin-bottom: 12px !important; 
                 padding: 10px !important; 
-                page-break-inside: avoid !important; 
-                break-inside: avoid !important; 
+                page-break-inside: auto !important; /* avoid yerine auto yapıldı */
+                break-inside: auto !important; 
             }
             .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 12px !important; }
             
-            /* GRAFİK (CANVAS) BOYUTLARINI ZORLA SABİTLEME */
             div[style*="height:250px"] { height: 120px !important; }
-            canvas { 
-                max-height: 120px !important; 
-                max-width: 150px !important; 
-                width: auto !important; 
-                height: auto !important; 
-                margin: 0 auto !important; 
-            }
+            canvas { max-height: 120px !important; max-width: 150px !important; width: auto !important; height: auto !important; margin: 0 auto !important; }
 
-            /* CSS GRID YAPILARINI DİKEY A4 İÇİN AYARLAMA */
             .grid { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
             .grid > div { flex: 1 1 0% !important; min-width: 0 !important; }
             .md\:grid-cols-2 > div { flex-basis: calc(50% - 10px) !important; }
             .md\:grid-cols-3 > div, .lg\:grid-cols-3 > div { flex-basis: calc(33.333% - 10px) !important; }
             .md\:grid-cols-4 > div { flex-basis: calc(50% - 10px) !important; }
 
-            /* Başlık ve Font Boyutları */
-            h1 { font-size: 14pt !important; }
-            h2 { font-size: 12pt !important; margin-bottom: 4px !important; }
-            h3 { font-size: 10pt !important; margin-bottom: 4px !important; }
-            .text-5xl { font-size: 18pt !important; }
-            .text-4xl { font-size: 16pt !important; }
-            .text-3xl { font-size: 14pt !important; }
+            h1 { font-size: 14pt !important; } h2 { font-size: 12pt !important; margin-bottom: 4px !important; } h3 { font-size: 10pt !important; margin-bottom: 4px !important; }
+            .text-5xl { font-size: 18pt !important; } .text-4xl { font-size: 16pt !important; } .text-3xl { font-size: 14pt !important; }
             p, div { font-size: 7.5pt !important; line-height: 1.3 !important; }
 
-            /* ==========================================
-               YEŞİL LOJİSTİK BAŞLIK VE LOGO GARANTİSİ
-               ========================================== */
+            /* LOGO VE ÜNVAN GARANTİSİ */
             .green-gradient { 
-                background: none !important; 
-                background-color: #f0fdf4 !important; 
-                border: 2px solid #10b981 !important; 
-                padding: 15px !important; 
-                position: static !important; /* Tarayıcı bug'ını önler */
+                background: none !important; background-color: #f0fdf4 !important; border: 2px solid #10b981 !important; 
+                padding: 15px !important; overflow: visible !important; /* Gizlenmeyi engeller */
             }
-            
-            /* Arka plandaki dev ağacı yazdırırken SİL (Logonun üstünü kapatmasını engeller) */
             .green-gradient .fa-tree { display: none !important; }
-            
-            /* Başlık Flex Kutusunu Sabitleme */
             .green-gradient > .flex.items-center.gap-4 { 
-                display: flex !important; 
-                align-items: center !important; 
-                border-bottom: 2px solid #a7f3d0 !important; 
-                padding-bottom: 10px !important; 
-                margin-bottom: 10px !important; 
-                visibility: visible !important;
-                opacity: 1 !important;
+                display: flex !important; align-items: center !important; 
+                border-bottom: 2px solid #a7f3d0 !important; padding-bottom: 10px !important; margin-bottom: 10px !important; 
             }
-            
-            /* Logonun Garantili Çıktısı */
-            #greenReportLogo { 
-                display: block !important; 
-                max-height: 55px !important; 
-                width: auto !important; 
-                background-color: transparent !important; 
-                box-shadow: none !important;
-            }
+            #greenReportLogo { display: block !important; max-height: 55px !important; width: auto !important; visibility: visible !important; opacity: 1 !important; z-index: 9999 !important; }
             #greenReportLogo.hidden { display: none !important; }
-            
-            /* Firma Ünvanı ve Alt Yazının Garantili Çıktısı */
-            #greenReportCompany { font-size: 16pt !important; font-weight: 800 !important; color: #064e3b !important; display: block !important; visibility: visible !important; opacity: 1 !important; margin-bottom: 2px !important; }
-            .green-gradient .text-emerald-100 { color: #059669 !important; font-weight: 700 !important; opacity: 1 !important; }
-            
-            /* Diğer tüm yazıların renk değişimi */
+            #greenReportCompany { font-size: 16pt !important; font-weight: 800 !important; color: #064e3b !important; display: block !important; visibility: visible !important; }
+            .green-gradient .text-emerald-100 { color: #059669 !important; font-weight: 700 !important; }
             .green-gradient * { color: #064e3b !important; border-color: #a7f3d0 !important; }
             .green-gradient h2, .green-gradient .text-5xl { color: #064e3b !important; font-weight: bold !important; }
 
-            /* Logo ve Tablo Düzeltmeleri */
-            img { max-width: 100% !important; page-break-inside: avoid; display: block !important; }
+            img { max-width: 100% !important; display: inline-block !important; }
             img.hidden { display: none !important; }
             table { width: 100% !important; border-collapse: collapse; font-size: 7.5pt !important; table-layout: auto !important; }
             th, td { border: 1px solid #cbd5e1 !important; padding: 4px 5px !important; }
             thead { display: table-header-group; }
-            tr { page-break-inside: avoid; }
+            tr { page-break-inside: avoid !important; }
             #greenDetailTable { font-size: 6.5pt !important; }
         }
     </style>
@@ -658,7 +615,29 @@
                 </div>
                 
                 <div class="glass-panel bg-white p-6"><h3 class="font-bold text-slate-700 mb-4" id="lblScorecard"><i class="fa-solid fa-certificate text-emerald-600 mr-2"></i>Nakliyeci Karbon Karnesi (Scorecard)</h3><div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-slate-100 text-slate-700"><tr><th class="px-4 py-2 text-left" id="thTransporter">Nakliyeci</th><th class="px-4 py-2 text-center" id="thMode2">Mod</th><th class="px-4 py-2 text-right" id="thWork">Taşıma İş (Ton-Km)</th><th class="px-4 py-2 text-right" id="thTotalEmission">Toplam Emisyon</th><th class="px-4 py-2 text-center" id="thIntensity">Yoğunluk (gCO2/tkm)</th><th class="px-4 py-2 text-center" id="thScore">Puan</th></tr></thead><tbody id="transporterScoreBody" class="divide-y divide-slate-100"></tbody></table></div></div>
-                
+                <div class="glass-panel bg-white p-6 break-inside-avoid">
+                    <h3 class="font-bold text-slate-700 mb-4" id="lblWorldMap"><i class="fa-solid fa-map-location-dot text-emerald-600 mr-2"></i>Küresel Emisyon Isı Haritası (Heatmap)</h3>
+                    <div class="relative w-full h-64 bg-slate-50/50 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg'); background-size: cover; background-position: center; opacity: 0.9;">
+                        
+                        <div class="absolute top-1/3 left-[20%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                            <div class="w-16 h-16 rounded-full bg-orange-500/20 animate-ping absolute"></div>
+                            <div class="w-4 h-4 rounded-full bg-orange-500 border-2 border-white shadow-lg relative z-10"></div>
+                            <div class="mt-1 bg-white/95 backdrop-blur px-3 py-1 rounded shadow text-center relative z-10 border border-orange-200">
+                                <div class="text-[9px] font-bold text-orange-800 uppercase">AMER</div>
+                                <div class="text-sm font-black text-orange-600" id="mapAmerVal">0.0 t</div>
+                            </div>
+                        </div>
+
+                        <div class="absolute top-[30%] right-[40%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-500/20 animate-ping absolute"></div>
+                            <div class="w-4 h-4 rounded-full bg-blue-600 border-2 border-white shadow-lg relative z-10"></div>
+                            <div class="mt-1 bg-white/95 backdrop-blur px-3 py-1 rounded shadow text-center relative z-10 border border-blue-200">
+                                <div class="text-[9px] font-bold text-blue-800 uppercase">EMEA</div>
+                                <div class="text-sm font-black text-blue-700" id="mapEmeaVal">0.0 t</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="glass-panel bg-white p-6">
                     <h3 class="font-bold text-slate-700 mb-4" id="lblDetailedBreakdown">Detaylı Emisyon Dökümü (Kapsam 3 & Teslim Şekli)</h3>
                     <p class="text-[10px] text-gray-500 mb-2" id="lblDetailNote">*Teslim şekli EXW, FCA, FOB gibi alıcı sorumluluğundaki yükler hesaplamaya dahil edilmez.</p>
@@ -793,39 +772,36 @@
         const EMISSION_FACTORS = { 'Deniz': 0.015, 'Kara': 0.090, 'Hava': 0.600 };
         const BUYER_RESPONSIBLE_INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB'];
 
-        // YARDIMCI: ÜLKE BAYRAĞI BULMA (YENİ EKLENDİ)
-       const flagMap = {
-            'TÜRKİYE': '🇹🇷', 'TURKEY': '🇹🇷', 'TR': '🇹🇷', 
-            'INGILTERE': '🇬🇧', 'İNGİLTERE': '🇬🇧', 'UK': '🇬🇧', 'UNITED KINGDOM': '🇬🇧', 'GREAT BRITAIN': '🇬🇧',
-            'USA': '🇺🇸', 'ABD': '🇺🇸', 'AMERIKA': '🇺🇸', 'AMERİKA': '🇺🇸', 'UNITED STATES': '🇺🇸',
-            'GERMANY': '🇩🇪', 'ALMANYA': '🇩🇪', 'DE': '🇩🇪',
-            'FRANCE': '🇫🇷', 'FRANSA': '🇫🇷', 'FR': '🇫🇷',
-            'ITALY': '🇮🇹', 'İTALYA': '🇮🇹', 'IT': '🇮🇹',
-            'SPAIN': '🇪🇸', 'İSPANYA': '🇪🇸', 'ES': '🇪🇸',
-            'CHINA': '🇨🇳', 'ÇİN': '🇨🇳', 'CN': '🇨🇳',
-            'CANADA': '🇨🇦', 'KANADA': '🇨🇦', 'CA': '🇨🇦',
-            'NETHERLANDS': '🇳🇱', 'HOLLANDA': '🇳🇱', 'NL': '🇳🇱',
-            'BELGIUM': '🇧🇪', 'BELÇİKA': '🇧🇪', 'BE': '🇧🇪',
-            'POLAND': '🇵🇱', 'POLONYA': '🇵🇱', 'PL': '🇵🇱',
-            'RUSSIA': '🇷🇺', 'RUSYA': '🇷🇺', 'RU': '🇷🇺',
-            'UAE': '🇦🇪', 'BİRLEŞİK ARAP EMİRLİKLERİ': '🇦🇪', 'DUBAI': '🇦🇪', 'AE': '🇦🇪',
-            'INDIA': '🇮🇳', 'HİNDİSTAN': '🇮🇳', 'IN': '🇮🇳',
-            'ROMANIA': '🇷🇴', 'ROMANYA': '🇷🇴', 'RO': '🇷🇴',
-            'BULGARIA': '🇧🇬', 'BULGARİSTAN': '🇧🇬', 'BG': '🇧🇬',
-            'GREECE': '🇬🇷', 'YUNANİSTAN': '🇬🇷', 'GR': '🇬🇷',
-            'SWEDEN': '🇸🇪', 'İSVEÇ': '🇸🇪', 'SE': '🇸🇪',
-            'SWITZERLAND': '🇨🇭', 'İSVİÇRE': '🇨🇭', 'CH': '🇨🇭',
-            'AUSTRIA': '🇦🇹', 'AVUSTURYA': '🇦🇹', 'AT': '🇦🇹'
+        // YARDIMCI: ÜLKE BAYRAĞI BULMA (GÖRSEL - %100 GARANTİLİ ÇIKTI)
+        const isoMap = {
+            'TÜRKİYE': 'tr', 'TURKEY': 'tr', 'TR': 'tr',
+            'INGILTERE': 'gb', 'İNGİLTERE': 'gb', 'UK': 'gb', 'UNITED KINGDOM': 'gb',
+            'USA': 'us', 'ABD': 'us', 'AMERIKA': 'us', 'AMERİKA': 'us', 'UNITED STATES': 'us',
+            'GERMANY': 'de', 'ALMANYA': 'de', 'DE': 'de',
+            'FRANCE': 'fr', 'FRANSA': 'fr', 'FR': 'fr',
+            'ITALY': 'it', 'İTALYA': 'it', 'IT': 'it',
+            'SPAIN': 'es', 'İSPANYA': 'es', 'ES': 'es',
+            'CHINA': 'cn', 'ÇİN': 'cn', 'CN': 'cn',
+            'CANADA': 'ca', 'KANADA': 'ca', 'CA': 'ca',
+            'NETHERLANDS': 'nl', 'HOLLANDA': 'nl', 'NL': 'nl',
+            'BELGIUM': 'be', 'BELÇİKA': 'be', 'BE': 'be',
+            'POLAND': 'pl', 'POLONYA': 'pl', 'PL': 'pl',
+            'RUSSIA': 'ru', 'RUSYA': 'ru', 'RU': 'ru',
+            'UAE': 'ae', 'BİRLEŞİK ARAP EMİRLİKLERİ': 'ae', 'DUBAI': 'ae', 'AE': 'ae',
+            'INDIA': 'in', 'HİNDİSTAN': 'in', 'IN': 'in',
+            'ROMANIA': 'ro', 'ROMANYA': 'ro', 'RO': 'ro',
+            'BULGARIA': 'bg', 'BULGARİSTAN': 'bg', 'BG': 'bg',
+            'GREECE': 'gr', 'YUNANİSTAN': 'gr', 'GR': 'gr'
         };
-        
+
         function getFlag(country) {
-            if(!country || typeof country !== 'string') return '📍';
+            if(!country || typeof country !== 'string') return '<i class="fa-solid fa-location-dot text-gray-400"></i>';
             let c = country.toUpperCase().trim();
-            if(flagMap[c]) return flagMap[c]; // Tam eşleşme önceliği
-            for(let key in flagMap) {
-                if(c.includes(key)) return flagMap[key]; // İçeriyorsa kısmi eşleşme
-            }
-            return '📍'; 
+            let code = null;
+            if(isoMap[c]) code = isoMap[c];
+            else { for(let key in isoMap) { if(c.includes(key)) { code = isoMap[key]; break; } } }
+            if(code) return `<img src="https://flagcdn.com/24x18/${code}.png" class="inline-block h-3 mr-1 align-middle" style="box-shadow: 0 0 1px rgba(0,0,0,0.3);" alt="flag">`;
+            return '<i class="fa-solid fa-location-dot text-gray-400"></i>';
         }
 
         function normalizeCurrency(val) {
@@ -1251,9 +1227,12 @@
             document.getElementById('thEmissionVal').innerText = isEn ? 'Emission (kgCO2e)' : 'Emisyon (kgCO2e)';
             document.getElementById('lblEmeaList').innerText = isEn ? '🇪🇺 Europe (EMEA) Breakdown (Aggregated by Company)' : '🇪🇺 Avrupa (EMEA) Dökümü (Firma Bazlı Toplam)';
             document.getElementById('lblAmerList').innerText = isEn ? '🇺🇸 Americas (AMER) Breakdown (Aggregated by Company)' : '🇺🇸 Amerika (AMER) Dökümü (Firma Bazlı Toplam)';
+            document.getElementById('mapEmeaVal').innerText = emeaT.toFixed(1) + " t";
+            document.getElementById('mapAmerVal').innerText = amerT.toFixed(1) + " t";
             document.getElementById('disclaimer1').innerHTML = isEn ? 'Our carbon emission reports generated via LojiTrack are based on the <b>GLEC Framework (Global Logistics Emissions Council)</b> methodology, the global standard for logistics emissions.' : 'LojiTrack üzerinden sunulan karbon emisyon raporları, lojistik sektörü için küresel geçerliliği olan <b>GLEC Framework (Global Logistics Emissions Council)</b> metodolojisi baz alınarak hazırlanmıştır.';
             document.getElementById('disclaimer2').innerHTML = isEn ? 'The calculations are aligned with <b>ISO 14083</b> and cover <b>Scope 3</b> emissions.' : 'Hesaplamalarımız <b>ISO 14083</b> standardı ile uyumlu olup, <b>Kapsam 3 (Scope 3)</b> emisyonlarını içerir.';
             document.getElementById('disclaimer3').innerHTML = isEn ? 'We utilize <b>WTW (Well-to-Wheel)</b> emission factors. Shipments under buyer-responsible Incoterms (EXW, FCA, etc.) are excluded.' : 'Kullanılan emisyon faktörleri, <b>WTW (Well-to-Wheel)</b> prensibine dayanır. Alıcının sorumluluğunda olan Incoterms kapsamındaki gönderiler hariç tutulmuştur.';
+            document.getElementById('lblWorldMap').innerHTML = isEn ? '<i class="fa-solid fa-map-location-dot text-emerald-600 mr-2"></i>Global Emission Heatmap' : '<i class="fa-solid fa-map-location-dot text-emerald-600 mr-2"></i>Küresel Emisyon Isı Haritası (Heatmap)';
             renderGreenAnalysis(records);
         }
 
