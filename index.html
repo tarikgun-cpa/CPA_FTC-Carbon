@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LojiTrack Pro - Ana Panel</title>
-    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚢</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -51,18 +51,61 @@
         .progress-bg { background-color: #f1f5f9; border-radius: 999px; height: 8px; width: 100%; overflow: hidden; margin-top: 4px; }
         .progress-bar { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); height: 100%; border-radius: 999px; transition: width 0.5s ease; }
 
-        @media print {
-            @page { size: A4 landscape; margin: 5mm; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            body { background-color: white !important; font-size: 8.5pt; margin: 0; padding: 0; display: block !important; }
-            #loginScreen, .no-print, nav, #searchInput, .glass-panel.mb-6, #yearFilterContainer, #formSection, #btnMainView, #btnAnalysisView, #btnGreenView { display: none !important; }
+       @media print {
+            /* Sayfa Yapısı ve Kenar Boşlukları (Daraltıldı) */
+            @page { size: A4 landscape; margin: 8mm; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            body { background-color: white !important; font-size: 8pt; margin: 0; padding: 0; }
+            
+            /* Gereksiz Arayüz Elemanlarını Gizleme */
+            #loginScreen, .no-print, nav, #searchInput, .glass-panel.mb-6:first-of-type, #yearFilterContainer, #formSection, #btnMainView, #btnAnalysisView, #btnGreenView { display: none !important; }
             .print-only { display: block !important; }
             .hidden { display: none !important; }
-            .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
-            .glass-panel, .card, .bg-white, .ai-insight-box { border: 1px solid #d1d5db !important; box-shadow: none !important; margin-bottom: 10px !important; page-break-inside: avoid !important; }
-            .hero-gradient, .green-gradient { background: white !important; color: black !important; border: 1px solid #000; }
-            table { width: 100% !important; border-collapse: collapse; font-size: 7.5pt !important; }
-            th, td { border: 1px solid #cbd5e1 !important; padding: 4px 6px !important; }
+            
+            /* Kutu ve Boşluk Düzeltmeleri (Daha Fazla İçeriği Sığdırmak İçin Küçültüldü) */
+            .glass-panel, .card, .bg-white, .ai-insight-box { 
+                border: 1px solid #cbd5e1 !important; 
+                box-shadow: none !important; 
+                margin-bottom: 10px !important; 
+                padding: 10px !important; 
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important; 
+            }
+            .gap-6 { gap: 10px !important; }
+            .mb-6 { margin-bottom: 10px !important; }
+            .mt-6, .mt-8 { margin-top: 10px !important; }
+
+            /* TAILWIND GRID YAPILARINI YAZDIRMADA ZORUNLU KILMA (Alt alta dizilmeyi engeller) */
+            .grid { display: grid !important; }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+            .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+
+            /* Başlık ve Font Boyutlarını Ölçeklendirme */
+            h2 { font-size: 14pt !important; margin-bottom: 4px !important; }
+            h3 { font-size: 10pt !important; margin-bottom: 6px !important; }
+            .text-5xl { font-size: 20pt !important; }
+            .text-4xl { font-size: 18pt !important; }
+            .text-3xl { font-size: 16pt !important; }
+            p { font-size: 7.5pt !important; margin-bottom: 4px !important; }
+
+            /* Yeşil Lojistik Arka Planları */
+            .green-gradient { background-color: #10b981 !important; background-image: linear-gradient(135deg, #064e3b 0%, #10b981 100%) !important; color: white !important; border: none !important; padding: 15px !important; }
+            .green-gradient * { color: white !important; border-color: rgba(255,255,255,0.3) !important; }
+            .hero-gradient { background-color: #1e293b !important; background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; color: white !important; }
+            
+            /* Logo ve Grafikler */
+            img { max-width: 100% !important; page-break-inside: avoid; }
+            canvas { max-height: 160px !important; width: auto !important; margin: 0 auto !important; }
+            
+            /* Tablo Düzeltmeleri (Yerden Tasarruf) */
+            table { width: 100% !important; border-collapse: collapse; font-size: 7pt !important; }
+            th, td { border: 1px solid #cbd5e1 !important; padding: 3px 4px !important; }
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+            #greenDetailTable { font-size: 6.5pt !important; } /* Uzun listeler için ekstra küçültme */
         }
     </style>
 </head>
@@ -704,22 +747,38 @@
         const BUYER_RESPONSIBLE_INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB'];
 
         // YARDIMCI: ÜLKE BAYRAĞI BULMA (YENİ EKLENDİ)
-        const flagMap = {
-            'TÜRKİYE': '🇹🇷', 'TURKEY': '🇹🇷', 'INGILTERE': '🇬🇧', 'İNGİLTERE': '🇬🇧', 'UK': '🇬🇧', 'UNITED KINGDOM': '🇬🇧',
+       const flagMap = {
+            'TÜRKİYE': '🇹🇷', 'TURKEY': '🇹🇷', 'TR': '🇹🇷', 
+            'INGILTERE': '🇬🇧', 'İNGİLTERE': '🇬🇧', 'UK': '🇬🇧', 'UNITED KINGDOM': '🇬🇧', 'GREAT BRITAIN': '🇬🇧',
             'USA': '🇺🇸', 'ABD': '🇺🇸', 'AMERIKA': '🇺🇸', 'AMERİKA': '🇺🇸', 'UNITED STATES': '🇺🇸',
-            'GERMANY': '🇩🇪', 'ALMANYA': '🇩🇪', 'FRANCE': '🇫🇷', 'FRANSA': '🇫🇷', 'ITALY': '🇮🇹', 'İTALYA': '🇮🇹',
-            'SPAIN': '🇪🇸', 'İSPANYA': '🇪🇸', 'CHINA': '🇨🇳', 'ÇİN': '🇨🇳', 'CANADA': '🇨🇦', 'KANADA': '🇨🇦',
-            'NETHERLANDS': '🇳🇱', 'HOLLANDA': '🇳🇱', 'BELGIUM': '🇧🇪', 'BELÇİKA': '🇧🇪', 'POLAND': '🇧🇪', 'POLONYA': '🇵🇱',
-            'RUSSIA': '🇷🇺', 'RUSYA': '🇷🇺', 'UAE': '🇦🇪', 'BİRLEŞİK ARAP EMİRLİKLERİ': '🇦🇪', 'DUBAI': '🇦🇪', 'INDIA': '🇮🇳', 'HİNDİSTAN': '🇮🇳'
+            'GERMANY': '🇩🇪', 'ALMANYA': '🇩🇪', 'DE': '🇩🇪',
+            'FRANCE': '🇫🇷', 'FRANSA': '🇫🇷', 'FR': '🇫🇷',
+            'ITALY': '🇮🇹', 'İTALYA': '🇮🇹', 'IT': '🇮🇹',
+            'SPAIN': '🇪🇸', 'İSPANYA': '🇪🇸', 'ES': '🇪🇸',
+            'CHINA': '🇨🇳', 'ÇİN': '🇨🇳', 'CN': '🇨🇳',
+            'CANADA': '🇨🇦', 'KANADA': '🇨🇦', 'CA': '🇨🇦',
+            'NETHERLANDS': '🇳🇱', 'HOLLANDA': '🇳🇱', 'NL': '🇳🇱',
+            'BELGIUM': '🇧🇪', 'BELÇİKA': '🇧🇪', 'BE': '🇧🇪',
+            'POLAND': '🇵🇱', 'POLONYA': '🇵🇱', 'PL': '🇵🇱',
+            'RUSSIA': '🇷🇺', 'RUSYA': '🇷🇺', 'RU': '🇷🇺',
+            'UAE': '🇦🇪', 'BİRLEŞİK ARAP EMİRLİKLERİ': '🇦🇪', 'DUBAI': '🇦🇪', 'AE': '🇦🇪',
+            'INDIA': '🇮🇳', 'HİNDİSTAN': '🇮🇳', 'IN': '🇮🇳',
+            'ROMANIA': '🇷🇴', 'ROMANYA': '🇷🇴', 'RO': '🇷🇴',
+            'BULGARIA': '🇧🇬', 'BULGARİSTAN': '🇧🇬', 'BG': '🇧🇬',
+            'GREECE': '🇬🇷', 'YUNANİSTAN': '🇬🇷', 'GR': '🇬🇷',
+            'SWEDEN': '🇸🇪', 'İSVEÇ': '🇸🇪', 'SE': '🇸🇪',
+            'SWITZERLAND': '🇨🇭', 'İSVİÇRE': '🇨🇭', 'CH': '🇨🇭',
+            'AUSTRIA': '🇦🇹', 'AVUSTURYA': '🇦🇹', 'AT': '🇦🇹'
         };
         
         function getFlag(country) {
-            if(!country) return '🏳️';
+            if(!country || typeof country !== 'string') return '📍';
             let c = country.toUpperCase().trim();
+            if(flagMap[c]) return flagMap[c]; // Tam eşleşme önceliği
             for(let key in flagMap) {
-                if(c.includes(key)) return flagMap[key];
+                if(c.includes(key)) return flagMap[key]; // İçeriyorsa kısmi eşleşme
             }
-            return '📍'; // Eşleşmeyenler için standart pin işareti
+            return '📍'; 
         }
 
         function normalizeCurrency(val) {
@@ -859,9 +918,10 @@
 
                 if (hasInvoice && !rec.isPaid) {
                     let tName = rec.transporter || 'Tanımsız';
-                    if (!transporterDebt[tName]) transporterDebt[tName] = { count: 0, eur: 0, usd: 0 };
+                    if (!transporterDebt[tName]) transporterDebt[tName] = { count: 0, eur: 0, usd: 0, tl: 0 };
                     transporterDebt[tName].count += 1;
                     if (cleanCurr === 'EUR') transporterDebt[tName].eur += rec.commission; else transporterDebt[tName].usd += rec.commission;
+                    transporterDebt[tName].tl += (rec.commission * rate);
                     
                     let impName = rec.importer || 'Tanımsız';
                     if (!topDebtors[impName]) topDebtors[impName] = 0;
@@ -929,7 +989,7 @@
             document.getElementById('kpiAvgRate').innerText = totalF > 0 ? '%' + ((totalC / totalF) * 100).toFixed(1) : '%0.0';
 
             const currentYearRecords = allData.filter(r => r.commInvDate.substring(0,4) === activePeriod);
-            generateFinancialAIInsights(grandTotal, consolidatedRiskUSD, unbilledList.length, topDebtors, topClients); // GÜÇLENDİRİLMİŞ AI
+            generateFinancialAIInsights(allData, activePeriod, grandTotal, consolidatedRiskUSD, unbilledList.length, topDebtors, topClients, currentParity); // GÜÇLENDİRİLMİŞ AI
             renderCharts(monthlyData, typeData);
             generateTrendAnalysis(monthlyData);
             renderMonthlyTable(monthlyBreakdown); // GÜÇLENDİRİLMİŞ TABLO
@@ -942,35 +1002,76 @@
         }
 
         // FİNANSAL YAPAY ZEKA (CFO BAKIŞ AÇISI)
-        function generateFinancialAIInsights(totalRevenue, totalRisk, unbilledCount, debtors, clients) {
+        function generateFinancialAIInsights(allData, activePeriod, totalRevenue, totalRisk, unbilledCount, debtors, clients, parity) {
             const list = document.getElementById('aiInsightList'); list.innerHTML = ''; 
-            if (totalRevenue === 0) { list.innerHTML = '<div class="text-slate-400 italic">Analiz için veri bekleniyor...</div>'; return; }
+            const currentYearRecords = allData.filter(r => r.commInvDate.substring(0,4) === activePeriod);
+            if (currentYearRecords.length === 0) { list.innerHTML = '<div class="text-slate-400 italic col-span-full">Analiz için yeterli veri bulunmuyor...</div>'; return; }
             
             // 1. Tahsilat Risk Oranı
-            let riskRatio = (totalRisk / totalRevenue) * 100;
+            let riskRatio = totalRevenue > 0 ? (totalRisk / totalRevenue) * 100 : 0;
             let riskClass = riskRatio > 30 ? 'red-box' : (riskRatio > 15 ? 'orange-box' : 'green-box');
             let riskIcon = riskRatio > 30 ? 'fa-triangle-exclamation' : 'fa-shield-check';
-            list.innerHTML += `<div class="ai-insight-box ${riskClass}"><div><i class="fa-solid ${riskIcon} ai-icon"></i><div class="ai-title">Alacak Risk Oranı (%${riskRatio.toFixed(1)})</div><div class="ai-text">Toplam cironuzun %${riskRatio.toFixed(1)}'i tahsil edilmemiş durumda. ${riskRatio > 30 ? '<b>Kritik seviyede!</b> Tahsilatlara öncelik verin.' : 'Finansal sağlığınız güvende.'}</div></div></div>`;
+            list.innerHTML += `<div class="ai-insight-box ${riskClass}"><div><i class="fa-solid ${riskIcon} ai-icon"></i><div class="ai-title">Alacak Risk Oranı (%${riskRatio.toFixed(1)})</div><div class="ai-text">Toplam cironuzun %${riskRatio.toFixed(1)}'i tahsil edilmemiş durumda. ${riskRatio > 30 ? '<b>Kritik seviyede!</b> Tahsilatlara acil öncelik verin.' : 'Finansal sağlığınız güvende, nakit akışı istikrarlı.'}</div></div></div>`;
             
-            // 2. En Riskli Müşteri
+            // 2. Fatura Disiplini
+            if(unbilledCount > 0) { 
+                list.innerHTML += `<div class="ai-insight-box red-box"><div><i class="fa-solid fa-file-invoice ai-icon"></i><div class="ai-title">Faturalanmamış Gelir</div><div class="ai-text">İşlemi bitmiş ama faturası kesilmemiş <b>${unbilledCount}</b> dosya var. Geciken faturalar nakit akışını yavaşlatır, acilen resmileştirin.</div></div></div>`; 
+            } else { 
+                list.innerHTML += `<div class="ai-insight-box green-box"><div><i class="fa-solid fa-check-circle ai-icon"></i><div class="ai-title">Fatura Disiplini</div><div class="ai-text">Tüm operasyonlar başarıyla faturalandırılmış. Muhasebe süreciniz eksiksiz ve hızlı çalışıyor.</div></div></div>`; 
+            }
+
+            // 3. Kârlılık Oranı (Margin)
+            let totalFreight = 0; let totalComm = 0;
+            currentYearRecords.forEach(r => {
+                let rate = r.currency === 'EUR' ? parity : 1;
+                totalFreight += (r.freight || 0) * rate;
+                totalComm += (r.commission || 0) * rate;
+            });
+            let margin = totalFreight > 0 ? (totalComm / totalFreight) * 100 : 0;
+            let marginClass = margin > 15 ? 'green-box' : (margin > 8 ? 'orange-box' : 'red-box');
+            list.innerHTML += `<div class="ai-insight-box ${marginClass}"><div><i class="fa-solid fa-chart-line ai-icon"></i><div class="ai-title">Ortalama Kâr Marjı (%${margin.toFixed(1)})</div><div class="ai-text">Navlun üzerinden elde ettiğiniz komisyon oranı. ${margin > 15 ? 'Sektör ortalamasının üstünde, harika!' : 'Marjlar düşük, satınalma gücünüzü veya satış fiyatlarınızı revize etmelisiniz.'}</div></div></div>`;
+
+            // 4. Kur Riski & TL Hacmi
+            let tlTotal = 0;
+            currentYearRecords.forEach(r => {
+                let curRate = parseFloat(r.exchangeRate) || 0;
+                tlTotal += (r.commission * curRate);
+            });
+            list.innerHTML += `<div class="ai-insight-box blue-box"><div><i class="fa-solid fa-money-bill-transfer ai-icon"></i><div class="ai-title">TL Hacim & Kur Etkisi</div><div class="ai-text">Bu dönemki cironuzun tahmini nakit girişi <b>${tlTotal.toLocaleString('tr-TR', {minimumFractionDigits:0})} ₺</b>. Kur dalgalanmalarına karşı vadeli (Forward) kurları takip edin.</div></div></div>`;
+
+            // 5. En Riskli / Borçlu Müşteri
             let topDebtorArr = Object.entries(debtors).sort((a,b) => b[1]-a[1]);
             if(topDebtorArr.length > 0) {
                 let debtor = topDebtorArr[0];
-                list.innerHTML += `<div class="ai-insight-box orange-box"><div><i class="fa-solid fa-user-minus ai-icon"></i><div class="ai-title">Kredi Riski (Müşteri)</div><div class="ai-text">En yüksek açık bakiye <b>${debtor[0]}</b> firmasında (${formatMoney(debtor[1], 'USD')}). Kredi limitini gözden geçirin.</div></div></div>`;
+                list.innerHTML += `<div class="ai-insight-box orange-box"><div><i class="fa-solid fa-user-minus ai-icon"></i><div class="ai-title">Kredi Riski Yoğunlaşması</div><div class="ai-text">Açık bakiyelerin önemli kısmı <b>${debtor[0]}</b> firmasında (${formatMoney(debtor[1], 'USD')}). Bu firmaya uygulanan açık hesap limitini gözden geçirin.</div></div></div>`;
             }
 
-            // 3. En Kârlı Müşteri
+            // 6. VIP Müşteri Bağımlılığı
             let topClientArr = Object.entries(clients).sort((a,b) => b[1]-a[1]);
             if(topClientArr.length > 0) {
                 let client = topClientArr[0];
-                list.innerHTML += `<div class="ai-insight-box blue-box"><div><i class="fa-solid fa-crown ai-icon"></i><div class="ai-title">En Değerli Müşteri</div><div class="ai-text">Bu dönem en çok kârı <b>${client[0]}</b> firmasından elde ettiniz. Sadakat programı uygulayabilirsiniz.</div></div></div>`;
+                let clientShare = (client[1] / totalRevenue) * 100;
+                let clientClass = clientShare > 40 ? 'orange-box' : 'blue-box';
+                list.innerHTML += `<div class="ai-insight-box ${clientClass}"><div><i class="fa-solid fa-crown ai-icon"></i><div class="ai-title">Müşteri Konsantrasyonu</div><div class="ai-text">Toplam cironuzun <b>%${clientShare.toFixed(1)}</b>'i <b>${client[0]}</b> firmasından geliyor. ${clientShare > 40 ? 'Tek müşteriye yüksek bağımlılık risklidir, portföyü çeşitlendirin.' : 'Müşteri dağılımınız sağlıklı görünüyor.'}</div></div></div>`;
             }
 
-            // 4. Fatura Disiplini
-            if(unbilledCount > 0) { 
-                list.innerHTML += `<div class="ai-insight-box red-box"><div><i class="fa-solid fa-file-invoice ai-icon"></i><div class="ai-title">Faturalanmamış Gelir</div><div class="ai-text">İşlemi bitmiş ama faturası kesilmemiş <b>${unbilledCount}</b> dosya var. Nakit akışını yavaşlatıyor, acilen resmileştirin.</div></div></div>`; 
-            } else { 
-                list.innerHTML += `<div class="ai-insight-box green-box"><div><i class="fa-solid fa-check-circle ai-icon"></i><div class="ai-title">Fatura Disiplini</div><div class="ai-text">Tüm tamamlanan operasyonlar başarıyla faturalandırılmış. Muhasebe süreciniz eksiksiz çalışıyor.</div></div></div>`; 
+            // 7. Mod (Taşıma Türü) Optimizasyonu
+            let modes = {'Deniz':0, 'Kara':0, 'Hava':0};
+            currentYearRecords.forEach(r => { if(modes[r.type] !== undefined) modes[r.type] += 1; });
+            let dominantMode = Object.keys(modes).reduce((a, b) => modes[a] > modes[b] ? a : b);
+            if (modes[dominantMode] > 0) {
+                list.innerHTML += `<div class="ai-insight-box blue-box"><div><i class="fa-solid fa-truck-fast ai-icon"></i><div class="ai-title">Operasyon Dağılımı</div><div class="ai-text">En çok tercih edilen taşıma türü <b>${dominantMode} Yolu</b> (${modes[dominantMode]} işlem). Operasyonel uzmanlığınız bu yönde gelişiyor.</div></div></div>`;
+            }
+
+            // 8. Yeşil Lojistik Veri Kalitesi
+            let missingGreen = currentYearRecords.filter(r => {
+                let w = parseFloat(r.weightKg) || 0; let d = (parseFloat(r.distSea)||0) + (parseFloat(r.distRoad)||0) + (parseFloat(r.distAir)||0); 
+                return (w === 0 || d === 0) && !['EXW', 'FCA', 'FAS', 'FOB'].includes(r.incoterm);
+            }).length;
+            if(missingGreen > 0) {
+                list.innerHTML += `<div class="ai-insight-box orange-box"><div><i class="fa-solid fa-leaf ai-icon"></i><div class="ai-title">Sürdürülebilirlik Verisi</div><div class="ai-text"><b>${missingGreen}</b> kayıtta tonaj/mesafe verisi eksik. Karbon ayak izi (ISO 14083) raporlarının doğru çıkması için bu alanları güncelleyin.</div></div></div>`;
+            } else {
+                list.innerHTML += `<div class="ai-insight-box green-box"><div><i class="fa-solid fa-leaf ai-icon"></i><div class="ai-title">Veri Kalitesi Mükemmel</div><div class="ai-text">Karbon hesaplamaları için tüm mesafe ve tonaj verileri eksiksiz. Yeşil Lojistik raporlarınız denetime hazır ve %100 güvenilir.</div></div></div>`;
             }
         }
 
@@ -984,12 +1085,16 @@
             const firmsWithTotal = sortedFirms.map(firm => {
                 let d = data[firm]; let totalScore = d.eur + d.usd; 
                 if(totalScore > maxTotal) maxTotal = totalScore;
-                return { name: firm, count: d.count, eur: d.eur, usd: d.usd, score: totalScore };
+                return { name: firm, count: d.count, eur: d.eur, usd: d.usd, tl: d.tl, score: totalScore };
             }).sort((a,b) => b.score - a.score); 
 
             firmsWithTotal.forEach(f => { 
                 let percent = maxTotal > 0 ? (f.score / maxTotal) * 100 : 0;
-                let valStr = []; if(f.eur > 0) valStr.push(formatMoney(f.eur, 'EUR')); if(f.usd > 0) valStr.push(formatMoney(f.usd, 'USD'));
+                let valStr = []; 
+                if(f.eur > 0) valStr.push(formatMoney(f.eur, 'EUR')); 
+                if(f.usd > 0) valStr.push(formatMoney(f.usd, 'USD'));
+                if(f.tl > 0) valStr.push(`<span class="text-slate-500 font-medium text-[10px] block mt-1">(${f.tl.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺)</span>`);
+
                 tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                     <td class="px-3 py-3 w-1/2">
@@ -997,7 +1102,7 @@
                         <div class="progress-bg"><div class="progress-bar" style="width: ${percent}%"></div></div>
                     </td>
                     <td class="px-3 py-3 text-center text-slate-500 font-bold">${f.count} Dosya</td>
-                    <td class="px-3 py-3 text-right font-bold text-red-600">${valStr.join('<br>')}</td>
+                    <td class="px-3 py-3 text-right font-bold text-red-600 leading-tight">${valStr.join('')}</td>
                 </tr>`; 
             }); 
         }
@@ -1255,19 +1360,15 @@
         }
 
         function fillImporterDetails() {
-            const val = document.getElementById('importerSelect').value; const firm = importers.find(i => i.name === val);
-            if(firm) { if(firm.country) document.getElementById('destCountry').value = firm.country; if(firm.city) document.getElementById('destCity').value = firm.city; if(!document.getElementById('distSea').value && firm.distSea) document.getElementById('distSea').value = firm.distSea; if(!document.getElementById('distRoad').value && firm.distRoad) document.getElementById('distRoad').value = firm.distRoad; if(!document.getElementById('distAir').value && firm.distAir) document.getElementById('distAir').value = firm.distAir; }
-        }
-
-        function openModal(type) { activeModalType = type; editingFirmOriginalName = null; document.getElementById('modalTitle').innerText = type === 'importer' ? 'Yeni İthalatçı Ekle' : 'Yeni Nakliyeci Ekle'; document.getElementById('newFirmName').value = ''; document.getElementById('newFirmCountry').value = ''; document.getElementById('newFirmCity').value = ''; document.getElementById('newFirmDistSea').value = ''; document.getElementById('newFirmDistRoad').value = ''; document.getElementById('newFirmDistAir').value = ''; if (type === 'importer') { document.getElementById('importerExtraFields').classList.remove('hidden'); } else { document.getElementById('importerExtraFields').classList.add('hidden'); } document.getElementById('firmModal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('firmModal').classList.add('hidden'); editingFirmOriginalName = null; }
-        
-        function editFirm(type, name) { 
-            activeModalType = type; editingFirmOriginalName = name; 
-            document.getElementById('modalTitle').innerText = (type === 'importer' ? 'Firma Düzenle' : 'Nakliyeci Düzenle'); 
-            document.getElementById('firmModal').classList.remove('hidden'); 
-            if (type === 'importer') { const firm = importers.find(i => i.name === name); if (firm) { document.getElementById('newFirmName').value = firm.name; document.getElementById('newFirmCountry').value = firm.country || ''; document.getElementById('newFirmCity').value = firm.city || ''; document.getElementById('newFirmDistSea').value = firm.distSea || ''; document.getElementById('newFirmDistRoad').value = firm.distRoad || ''; document.getElementById('newFirmDistAir').value = firm.distAir || ''; document.getElementById('importerExtraFields').classList.remove('hidden'); } } 
-            else { document.getElementById('newFirmName').value = name; document.getElementById('importerExtraFields').classList.add('hidden'); } 
+            const val = document.getElementById('importerSelect').value; 
+            const firm = importers.find(i => i.name === val);
+            if(firm) { 
+                document.getElementById('destCountry').value = firm.country || ''; 
+                document.getElementById('destCity').value = firm.city || ''; 
+                document.getElementById('distSea').value = firm.distSea || ''; 
+                document.getElementById('distRoad').value = firm.distRoad || ''; 
+                document.getElementById('distAir').value = firm.distAir || ''; 
+            }
         }
 
         function saveFirm() { 
